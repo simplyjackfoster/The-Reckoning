@@ -495,3 +495,273 @@ Do not open a code editor. Do this instead:
 8. Look up what each opcode does in the Virtual AGC assembly language manual (ibiblio.org/apollo/assembly_language_manual.html)
 
 That reading session is the foundation. When you sit down to write `arithmetic.ts`, you'll know exactly what you're building.
+
+---
+
+## Detailed Build-Out: Execution Backlog
+
+This section translates the phase narrative into a concrete, implementation-ready backlog with clear done criteria.
+
+### Backlog A — Data & Ground Truth Artifacts
+
+#### A1. Opcode catalog artifact
+Create `artifacts/opcode-catalog.json` with one entry per interpretive opcode:
+- `mnemonic`
+- `opcode`
+- `arity`
+- `mpacIn`
+- `mpacOut`
+- `operandKind`
+- `scaleDomain`
+- `sourceRefs`
+
+**Done when:**
+- Every opcode observed in powered descent files is represented.
+- At least one source reference exists per opcode.
+- A validation script confirms no duplicate opcode numbers and no missing mnemonic keys.
+
+#### A2. Guidance trace seed artifact
+Create `artifacts/powered-descent-trace-seed.json` from extracted interpretive lines:
+- ordered instruction list
+- symbolic operand labels
+- raw comments
+- source line references
+
+**Done when:**
+- Trace starts at first `TC INTPRET` call in powered descent path.
+- Trace includes at least one complete pass through the P63 computational core.
+- A quick script can print first 100 instructions with source references.
+
+#### A3. Scaling reference sheet
+Create `docs/scaling-reference.md` mapping erasable locations/scales to SI conversions used by the app.
+
+**Done when:**
+- Every value shown in UI readouts has a documented conversion formula.
+- The same formulas are imported by runtime conversion code (single source of truth).
+
+---
+
+### Backlog B — Interpreter Kernel
+
+#### B1. Word primitives and invariants
+Implement low-level primitives in `interpreter/src/arithmetic.ts`:
+- 15-bit masking
+- end-around carry add/sub
+- negative zero normalization toggle (configurable)
+- DP pack/unpack helpers
+
+**Done when:**
+- Property tests cover add/sub wrap behavior.
+- Explicit test vectors include +0/-0 behavior and sign boundary values.
+
+#### B2. MPAC/VAC memory behavior
+Implement `interpreter/src/mpac.ts` and `interpreter/src/memory.ts` with:
+- MPAC struct
+- push/pop into VAC area
+- typed read/write helpers (`readScalarDP`, `writeVector`, etc.)
+
+**Done when:**
+- Sequence tests reproduce expected stack patterns for `VLOAD→VXSC→STOVL` and `DLOAD→DMP→STODL`.
+- Underflow/overflow conditions raise structured interpreter errors.
+
+#### B3. Step engine and snapshots
+Implement `interpreter/src/interpreter.ts` core loop:
+- decode instruction
+- resolve operand
+- execute handler
+- emit `StateSnapshot`
+
+`StateSnapshot` minimum fields:
+- `pc`
+- `opcode`
+- `operand`
+- `mpac`
+- `vacDepth`
+- `mode`
+- `physicalView` (human-readable conversion)
+- `sourceRef`
+
+**Done when:**
+- `step()` is deterministic for identical initial state + bytecode.
+- Snapshot stream can be replayed to recover final state exactly.
+
+---
+
+### Backlog C — Renderer Integration Contract
+
+#### C1. Snapshot schema freeze
+Define `shared/snapshot-schema.ts` (or JSON schema) consumed by both interpreter and renderer.
+
+**Done when:**
+- Schema version field exists.
+- Runtime validator rejects unknown opcode payload shape.
+- Renderer can run against recorded snapshots without live interpreter.
+
+#### C2. Playback controller
+Create a playback loop with modes:
+- realtime
+- fixed-rate
+- single-step
+- paused
+
+**Done when:**
+- Pausing is frame-perfect (no extra state mutation after pause command).
+- Single-step always advances exactly one interpreter instruction.
+
+#### C3. Visual opcode adapters
+Create adapter map `opcode → animation routine`.
+
+**Done when:**
+- Unknown opcode falls back to a neutral transition (no crash).
+- Transition duration budget enforced by global cap (`<=400ms`).
+
+---
+
+### Backlog D — Closed-Loop Guidance + Physics
+
+#### D1. Guidance cycle scheduler
+Run guidance at mission cadence while physics integrates at fixed 10ms.
+
+**Done when:**
+- Scheduler logs stable cadence under 60 FPS render load.
+- Guidance and physics clocks are decoupled and drift-corrected.
+
+#### D2. Memory bridge
+Implement bridge that writes physics truth values into erasable slots before each guidance cycle and reads command outputs after cycle completion.
+
+**Done when:**
+- Bridge mapping is table-driven (not scattered constants).
+- A debug view can print last written/read slot values per cycle.
+
+#### D3. DAP command surface
+Define a normalized command packet:
+- `timestamp`
+- `desiredTorque`
+- `jetEnableMask`
+- `throttleCmd`
+
+**Done when:**
+- Physics layer accepts packet without direct dependency on interpreter internals.
+- Packet can be serialized into timeline checkpoints.
+
+---
+
+### Backlog E — Reliability, Debuggability, and Historical Modes
+
+#### E1. Deterministic replay mode
+Given same seed + interactions, simulation output must be bit-stable.
+
+**Done when:**
+- CI test replays a 60-second segment and compares a hash of snapshots.
+- Hash mismatch prints first divergent opcode + source line.
+
+#### E2. Historical vs exploratory modes
+Add two runtime presets:
+- `historical`: authentic Apollo 11 initial conditions and nominal hardware
+- `exploratory`: user-friendly defaults with wider drag/failure envelopes
+
+**Done when:**
+- Mode switch affects initialization only; runtime codepath remains identical.
+- UI labels mode clearly to avoid authenticity confusion.
+
+#### E3. Program alarm instrumentation
+Implement alarm record model:
+- code (`1201`, `1202`, etc.)
+- trigger condition
+- executive state at trigger
+- recovery actions
+
+**Done when:**
+- Alarm panel can display ordered alarm history with timestamps.
+- 1202 demo path records overflow cause and recovery outcome.
+
+---
+
+## Test Strategy (Expanded)
+
+### 1) Unit tests
+- Arithmetic primitives
+- Opcode handlers
+- Memory read/write scaling conversions
+
+### 2) Golden trace tests
+Capture known-good snapshot traces for short mission intervals.
+- Store as compressed JSON in `artifacts/golden-traces/`
+- Compare opcode-by-opcode and value-by-value with tolerances only where explicitly documented
+
+### 3) Scenario tests
+Scripted scenarios:
+- nominal descent segment
+- one-thruster-disabled segment
+- induced 1202 overflow segment
+
+Each scenario has pass/fail assertions on:
+- alarm occurrence
+- convergence direction
+- state continuity after restart
+
+### 4) Performance checks
+Track:
+- interpreter instructions/sec
+- render frame time p95
+- checkpoint memory growth
+
+Set hard budgets and fail CI if regressions exceed threshold.
+
+---
+
+## Suggested Repository Layout Additions
+
+```text
+dead-reckoning/
+  docs/
+    scaling-reference.md
+    architecture-decisions.md
+  artifacts/
+    opcode-catalog.json
+    powered-descent-trace-seed.json
+    golden-traces/
+  shared/
+    snapshot-schema.ts
+  app/
+    src/
+      playback/
+      panels/
+      annotations/
+  interpreter/
+    src/
+    tests/
+```
+
+Keep `shared/` small and schema-focused so interpreter and app evolve independently.
+
+---
+
+## Definition of Demo-Ready (v0)
+
+The project is demo-ready when all criteria below are true:
+
+1. Powered descent execution runs from authentic initial conditions for at least 180 seconds without runtime errors.
+2. Stack panel, source panel, and LM panel are all synchronized to the same instruction timeline.
+3. At least three curated séance annotations trigger at the intended opcode moments.
+4. A forced 1202 event shows alarm, recovery, and continued descent.
+5. Time scrub can rewind and replay the same 30-second window deterministically.
+
+If any one of these is missing, the build is still an internal prototype, not a public demo.
+
+---
+
+## Next 10 Working Sessions (Concrete)
+
+1. Build extraction script output v1 (`opcode-catalog.json`, `trace-seed.json`).
+2. Stand up arithmetic primitives + tests for 1's complement edge cases.
+3. Implement MPAC/VAC model + stack behavior tests.
+4. Implement first five vector/scalar opcodes (`VLOAD`, `VXSC`, `VXV`, `DLOAD`, `DMP`).
+5. Add deterministic `step()` snapshots and CLI trace printer.
+6. Implement playback controller in browser and render simple arrow/sphere placeholders.
+7. Wire source panel highlighting to snapshot `sourceRef`.
+8. Add annotation queue/filtering with one curated annotation.
+9. Integrate minimal LM rigid-body + fake thruster packet playback.
+10. Close the loop with interpreter-driven command packet and verify first synchronized end-to-end run.
+
+This sequence gets you from planning to first undeniable vertical slice as fast as possible.
