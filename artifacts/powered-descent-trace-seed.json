@@ -1,0 +1,2142 @@
+[
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 72,
+    "opcodeIndex": 0,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "CD*TR*G\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 101,
+    "opcodeIndex": 1,
+    "opcode": "COSINE",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tCADR\tCOSINE"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 109,
+    "opcodeIndex": 2,
+    "opcode": "SINE",
+    "operand": "+1",
+    "comment": "SINE +1 EXPECTS ARGUMENT IN A AND L",
+    "isInterpretive": true,
+    "raw": "\t\tCADR\tSINE \t+1\t# SINE +1 EXPECTS ARGUMENT IN A AND L"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 171,
+    "opcodeIndex": 3,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "CDU*SMNB\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 181,
+    "opcodeIndex": 4,
+    "opcode": "VLOAD",
+    "operand": "RVQ",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tRVQ"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 184,
+    "opcodeIndex": 5,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "CDU*NBSM\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 330,
+    "opcodeIndex": 6,
+    "opcode": "DMP",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tTC\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 363,
+    "opcodeIndex": 7,
+    "opcode": "DMP",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tTC\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 368,
+    "opcodeIndex": 8,
+    "opcode": "DMP",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tTC\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 376,
+    "opcodeIndex": 9,
+    "opcode": "DMP",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tTC\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 386,
+    "opcodeIndex": 10,
+    "opcode": "DMP",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tTC\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/POWERED_FLIGHT_SUBROUTINES.agc",
+    "lineNumber": 428,
+    "opcodeIndex": 11,
+    "opcode": "VXV",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tTCF\tVXV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 156,
+    "opcodeIndex": 0,
+    "opcode": "VXSC",
+    "operand": "SET",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tSET"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 159,
+    "opcodeIndex": 1,
+    "opcode": "STOVL",
+    "operand": "VBIAS",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tVBIAS"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 162,
+    "opcodeIndex": 2,
+    "opcode": "STOVL",
+    "operand": "OLDPIPAX",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tOLDPIPAX"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 164,
+    "opcodeIndex": 3,
+    "opcode": "STODL",
+    "operand": "DELVROD",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tDELVROD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 166,
+    "opcodeIndex": 4,
+    "opcode": "STODL",
+    "operand": "RODSCAL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tRODSCAL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 168,
+    "opcodeIndex": 5,
+    "opcode": "STORE",
+    "operand": "LASTTPIP",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tLASTTPIP"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 169,
+    "opcodeIndex": 6,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 289,
+    "opcodeIndex": 7,
+    "opcode": "DLOAD",
+    "operand": "DSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 294,
+    "opcodeIndex": 8,
+    "opcode": "VXSC",
+    "operand": "VXV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tVXV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 297,
+    "opcodeIndex": 9,
+    "opcode": "RTB",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tBVSU\tRTB"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 300,
+    "opcodeIndex": 10,
+    "opcode": "VXSC",
+    "operand": "VSL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tVSL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 302,
+    "opcodeIndex": 11,
+    "opcode": "STODL",
+    "operand": "LANDTEMP",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tLANDTEMP"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 303,
+    "opcodeIndex": 12,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 361,
+    "opcodeIndex": 13,
+    "opcode": "VLOAD",
+    "operand": "VSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tVSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 364,
+    "opcodeIndex": 14,
+    "opcode": "RTB",
+    "operand": "PUSH",
+    "comment": "PUSH DOWN UNIT (LAND - R)",
+    "isInterpretive": true,
+    "raw": "\t\tRTB\tPUSH\t\t# PUSH DOWN UNIT (LAND - R)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 366,
+    "opcodeIndex": 15,
+    "opcode": "VXV",
+    "operand": "VSL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXV\tVSL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 368,
+    "opcodeIndex": 16,
+    "opcode": "VXSC",
+    "operand": "PDDL",
+    "comment": "PUSH DOWN - ELINCR(YNB * UNIT(LAND - R))",
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tPDDL\t\t# PUSH DOWN - ELINCR(YNB * UNIT(LAND - R))"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 371,
+    "opcodeIndex": 17,
+    "opcode": "VXSC",
+    "operand": "VSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tVSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 373,
+    "opcodeIndex": 18,
+    "opcode": "VAD",
+    "operand": "PUSH",
+    "comment": "RESULTING VECTOR IS 1/2 REAL SIZE",
+    "isInterpretive": true,
+    "raw": "\t\tVAD\tPUSH\t\t# RESULTING VECTOR IS 1/2 REAL SIZE"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 377,
+    "opcodeIndex": 19,
+    "opcode": "DLOAD",
+    "operand": "DSU",
+    "comment": "MAKE SURE REDESIGNATION IS NOT",
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\tDSU\t\t# MAKE SURE REDESIGNATION IS NOT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 380,
+    "opcodeIndex": 20,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tBMN\tDLOAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 383,
+    "opcodeIndex": 21,
+    "opcode": "STORE",
+    "operand": "0",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\t0"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 384,
+    "opcodeIndex": 22,
+    "opcode": "DLOAD",
+    "operand": "DSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "REDES1\t\tDLOAD\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 387,
+    "opcodeIndex": 23,
+    "opcode": "DDV",
+    "operand": "VXSC",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tVXSC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 389,
+    "opcodeIndex": 24,
+    "opcode": "VAD",
+    "operand": "UNIT",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVAD\tUNIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 391,
+    "opcodeIndex": 25,
+    "opcode": "VXSC",
+    "operand": "VSL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tVSL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 393,
+    "opcodeIndex": 26,
+    "opcode": "STORE",
+    "operand": "LANDTEMP",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tLANDTEMP"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 394,
+    "opcodeIndex": 27,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": "LOOKANGL WILL BE COMPUTED AT RGVGCALC",
+    "isInterpretive": true,
+    "raw": "\t\tEXIT\t\t\t# LOOKANGL WILL BE COMPUTED AT RGVGCALC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 434,
+    "opcodeIndex": 28,
+    "opcode": "VLOAD",
+    "operand": "MXV",
+    "comment": "OUTPUT AND TRIM CORRECTION TERM",
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tMXV\t\t#\tOUTPUT AND TRIM CORRECTION TERM"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 437,
+    "opcodeIndex": 29,
+    "opcode": "VAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSR1\tVAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 439,
+    "opcodeIndex": 30,
+    "opcode": "STORE",
+    "operand": "V",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 440,
+    "opcodeIndex": 31,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 443,
+    "opcodeIndex": 32,
+    "opcode": "VLOAD",
+    "operand": "VXV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tVXV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 446,
+    "opcodeIndex": 33,
+    "opcode": "VAD",
+    "operand": "VSR2",
+    "comment": "RESCALE TO UNITS OF 2(9) M/CS",
+    "isInterpretive": true,
+    "raw": "\t\tVAD\tVSR2\t\t# RESCALE TO UNITS OF 2(9) M/CS"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 448,
+    "opcodeIndex": 34,
+    "opcode": "STORE",
+    "operand": "ANGTERM",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tANGTERM"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 449,
+    "opcodeIndex": 35,
+    "opcode": "MXV",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tMXV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 451,
+    "opcodeIndex": 36,
+    "opcode": "STORE",
+    "operand": "VGU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tVGU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 455,
+    "opcodeIndex": 37,
+    "opcode": "STOVL",
+    "operand": "VHORIZ",
+    "comment": "VHORIZ FOR DISPLAY DURING P65.",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tVHORIZ\t\t# VHORIZ FOR DISPLAY DURING P65."
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 457,
+    "opcodeIndex": 38,
+    "opcode": "VSU",
+    "operand": "PUSH",
+    "comment": "PUSH DOWN R - LAND",
+    "isInterpretive": true,
+    "raw": "\t\tVSU\tPUSH\t\t# PUSH DOWN R - LAND"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 459,
+    "opcodeIndex": 39,
+    "opcode": "MXV",
+    "operand": "VSL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tMXV\tVSL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 461,
+    "opcodeIndex": 40,
+    "opcode": "STORE",
+    "operand": "RGU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tRGU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 463,
+    "opcodeIndex": 41,
+    "opcode": "STOVL",
+    "operand": "RANGEDSP",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tRANGEDSP"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 464,
+    "opcodeIndex": 42,
+    "opcode": "RTB",
+    "operand": "DOT",
+    "comment": "NOW IN MPAC IS SINE(LOOKANGL)/4",
+    "isInterpretive": true,
+    "raw": "\t\tRTB\tDOT\t\t# NOW IN MPAC IS SINE(LOOKANGL)/4"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 467,
+    "opcodeIndex": 43,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 494,
+    "opcodeIndex": 44,
+    "opcode": "STODL",
+    "operand": "TABLTTF +4",
+    "comment": "A(2) = 6 ADG  TO TABLTTF",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tTABLTTF +4\t# A(2) = 6 ADG  TO TABLTTF"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 496,
+    "opcodeIndex": 45,
+    "opcode": "DMP",
+    "operand": "DAD*",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDMP\tDAD*"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 501,
+    "opcodeIndex": 46,
+    "opcode": "DSU",
+    "operand": "DMP",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDSU\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 504,
+    "opcodeIndex": 47,
+    "opcode": "STORE",
+    "operand": "TABLTTF",
+    "comment": "A(0) = -24 (RGU  - RDG )/64 TO TABLTTF",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tTABLTTF\t\t# A(0) = -24 (RGU  - RDG )/64 TO TABLTTF"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 505,
+    "opcodeIndex": 48,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": "2      2",
+    "isInterpretive": true,
+    "raw": "\t\tEXIT\t\t\t#                2      2"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 581,
+    "opcodeIndex": 49,
+    "opcode": "VXSC",
+    "operand": "PDDL",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tPDDL"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 587,
+    "opcodeIndex": 50,
+    "opcode": "VSU",
+    "operand": "V/SC",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSU\tV/SC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 590,
+    "opcodeIndex": 51,
+    "opcode": "VXSC",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSR2\tVXSC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 592,
+    "opcodeIndex": 52,
+    "opcode": "VAD",
+    "operand": "VAD",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVAD\tVAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 593,
+    "opcodeIndex": 53,
+    "opcode": "VXSC",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tV/SC\tVXSC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 599,
+    "opcodeIndex": 54,
+    "opcode": "VAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 600,
+    "opcodeIndex": 55,
+    "opcode": "VXM",
+    "operand": "VSL1",
+    "comment": "VERGUID COMES HERE",
+    "isInterpretive": true,
+    "raw": "AFCCALC1\tVXM\tVSL1\t\t# VERGUID COMES HERE"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 606,
+    "opcodeIndex": 56,
+    "opcode": "STORE",
+    "operand": "UNFC/2",
+    "comment": "UNFC/2 NEED NOT BE UNITIZED",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tUNFC/2\t\t# UNFC/2 NEED NOT BE UNITIZED"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 608,
+    "opcodeIndex": 57,
+    "opcode": "STODL",
+    "operand": "/AFC/",
+    "comment": "MAGNITUDE OF AFC FOR THROTTLE",
+    "isInterpretive": true,
+    "raw": "AFCCALC2\tSTODL\t/AFC/\t\t# MAGNITUDE OF AFC FOR THROTTLE"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 614,
+    "opcodeIndex": 58,
+    "opcode": "DDV",
+    "operand": "DSQ",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tDSQ"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 616,
+    "opcodeIndex": 59,
+    "opcode": "DSU",
+    "operand": "DSU",
+    "comment": "AMAXHORIZ = SQRT(ATOTAL - A  - A  )",
+    "isInterpretive": true,
+    "raw": "\t\tDSU\tDSU\t\t# AMAXHORIZ = SQRT(ATOTAL - A  - A  )"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 617,
+    "opcodeIndex": 60,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": "1    0",
+    "isInterpretive": true,
+    "raw": "\t\tBPL\tDLOAD\t\t#                            1    0"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 620,
+    "opcodeIndex": 61,
+    "opcode": "SQRT",
+    "operand": "DAD",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "AFCCALC3\tSQRT\tDAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 626,
+    "opcodeIndex": 62,
+    "opcode": "STORE",
+    "operand": "UNFC/2 +4",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tUNFC/2 +4"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 627,
+    "opcodeIndex": 63,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "AFCCLEND\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 661,
+    "opcodeIndex": 64,
+    "opcode": "VLOAD",
+    "operand": "UNIT",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tUNIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 663,
+    "opcodeIndex": 65,
+    "opcode": "STODL",
+    "operand": "CG",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tCG"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 665,
+    "opcodeIndex": 66,
+    "opcode": "VXSC",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDMP*\tVXSC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 668,
+    "opcodeIndex": 67,
+    "opcode": "VAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 670,
+    "opcodeIndex": 68,
+    "opcode": "VSU",
+    "operand": "RTB",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSU\tRTB"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 674,
+    "opcodeIndex": 69,
+    "opcode": "VXV",
+    "operand": "RTB",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXV\tRTB"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 677,
+    "opcodeIndex": 70,
+    "opcode": "STOVL",
+    "operand": "CG +6",
+    "comment": "SECOND ROW",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tCG +6\t\t# SECOND ROW"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 679,
+    "opcodeIndex": 71,
+    "opcode": "VXV",
+    "operand": "VSL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXV\tVSL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 681,
+    "opcodeIndex": 72,
+    "opcode": "STORE",
+    "operand": "CG +14",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tCG +14"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 682,
+    "opcodeIndex": 73,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 722,
+    "opcodeIndex": 74,
+    "opcode": "VLOAD",
+    "operand": "RTB",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tRTB"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 725,
+    "opcodeIndex": 75,
+    "opcode": "VXSC",
+    "operand": "VXSC",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tVXSC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 728,
+    "opcodeIndex": 76,
+    "opcode": "STORE",
+    "operand": "UNFC/2",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tUNFC/2"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 729,
+    "opcodeIndex": 77,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 742,
+    "opcodeIndex": 78,
+    "opcode": "VLOAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 744,
+    "opcodeIndex": 79,
+    "opcode": "STORE",
+    "operand": "UNWC/2",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tUNWC/2"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 745,
+    "opcodeIndex": 80,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 749,
+    "opcodeIndex": 81,
+    "opcode": "VLOAD",
+    "operand": "VSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tVSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 752,
+    "opcodeIndex": 82,
+    "opcode": "RTB",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tRTB"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 754,
+    "opcodeIndex": 83,
+    "opcode": "STORE",
+    "operand": "UNWC/2",
+    "comment": "UNIT(LAND - R) IS TENTATIVE CHOICE",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tUNWC/2\t\t# UNIT(LAND - R) IS TENTATIVE CHOICE"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 755,
+    "opcodeIndex": 84,
+    "opcode": "VXV",
+    "operand": "DOT",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXV\tDOT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 758,
+    "opcodeIndex": 85,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": "WITH PROJ IN MPAC 1/8 REAL SIZE",
+    "isInterpretive": true,
+    "raw": "\t\tEXIT\t\t\t# WITH PROJ IN MPAC 1/8 REAL SIZE"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 825,
+    "opcodeIndex": 86,
+    "opcode": "CALL",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tCALL"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 827,
+    "opcodeIndex": 87,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 908,
+    "opcodeIndex": 88,
+    "opcode": "VLOAD",
+    "operand": "VSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tVSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 911,
+    "opcodeIndex": 89,
+    "opcode": "GOTO",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tV/SC\tGOTO"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 926,
+    "opcodeIndex": 90,
+    "opcode": "VLOAD",
+    "operand": "GOTO",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tGOTO"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1001,
+    "opcodeIndex": 91,
+    "opcode": "VXSC",
+    "operand": "PDDL",
+    "comment": "SCALE MPAC TO M/CS *2(-7) AND PUSH \t(6)",
+    "isInterpretive": true,
+    "raw": "ITRPNT1\t\tVXSC\tPDDL\t\t# SCALE MPAC TO M/CS *2(-7) AND PUSH \t(6)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1004,
+    "opcodeIndex": 92,
+    "opcode": "DSU",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1006,
+    "opcodeIndex": 93,
+    "opcode": "STORE",
+    "operand": "30D",
+    "comment": "30-31D CONTAINS TIME IN CS SINCE PIPTIME",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\t30D\t\t# 30-31D CONTAINS TIME IN CS SINCE PIPTIME"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1007,
+    "opcodeIndex": 94,
+    "opcode": "DDV",
+    "operand": "PDVL",
+    "comment": "(8)",
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tPDVL\t\t#\t\t\t\t\t(8)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1010,
+    "opcodeIndex": 95,
+    "opcode": "VSU",
+    "operand": "VXSC",
+    "comment": "(6)",
+    "isInterpretive": true,
+    "raw": "\t\tVSU\tVXSC\t\t#\t\t\t\t\t(6)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1012,
+    "opcodeIndex": 96,
+    "opcode": "VAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSL2\tVAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1014,
+    "opcodeIndex": 97,
+    "opcode": "VAD",
+    "operand": "STADR",
+    "comment": "(0)",
+    "isInterpretive": true,
+    "raw": "\t\tVAD\tSTADR\t\t#\t\t\t\t\t(0)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1015,
+    "opcodeIndex": 98,
+    "opcode": "STOVL",
+    "operand": "24D",
+    "comment": "STORE UPDATED VELOCITY IN 24-29D",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\t24D\t\t# STORE UPDATED VELOCITY IN 24-29D"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1018,
+    "opcodeIndex": 99,
+    "opcode": "UNIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tUNIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1019,
+    "opcodeIndex": 100,
+    "opcode": "STORE",
+    "operand": "14D",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\t14D"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1020,
+    "opcodeIndex": 101,
+    "opcode": "DOT",
+    "operand": "SL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDOT\tSL1"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1022,
+    "opcodeIndex": 102,
+    "opcode": "STODL",
+    "operand": "HDOTDISP",
+    "comment": "UPDATE HDOTDISP RATE FOR NOUN 63.",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tHDOTDISP\t# UPDATE HDOTDISP RATE FOR NOUN 63."
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1024,
+    "opcodeIndex": 103,
+    "opcode": "SL",
+    "operand": "DMP",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSL\tDMP"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1027,
+    "opcodeIndex": 104,
+    "opcode": "DAD",
+    "operand": "DSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDAD\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1030,
+    "opcodeIndex": 105,
+    "opcode": "STODL",
+    "operand": "HCALC1",
+    "comment": "UPDATE HCALC1 FOR NOUN 63.",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tHCALC1\t\t# UPDATE HCALC1 FOR NOUN 63."
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1032,
+    "opcodeIndex": 106,
+    "opcode": "DDV",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tBDSU\tDDV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1037,
+    "opcodeIndex": 107,
+    "opcode": "DDV",
+    "operand": "SR2",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tSR2"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1039,
+    "opcodeIndex": 108,
+    "opcode": "STORE",
+    "operand": "20D",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\t20D"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1040,
+    "opcodeIndex": 109,
+    "opcode": "DAD",
+    "operand": null,
+    "comment": "(0)",
+    "isInterpretive": true,
+    "raw": "\t\tDAD\t\t\t#\t\t\t\t(0)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1041,
+    "opcodeIndex": 110,
+    "opcode": "CALL",
+    "operand": null,
+    "comment": "(2)",
+    "isInterpretive": true,
+    "raw": "\t\tPDVL\tCALL\t\t#\t\t\t\t(2)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1044,
+    "opcodeIndex": 111,
+    "opcode": "DOT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDOT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1046,
+    "opcodeIndex": 112,
+    "opcode": "STORE",
+    "operand": "22D",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\t22D"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1048,
+    "opcodeIndex": 113,
+    "opcode": "STOVL",
+    "operand": "/AFC/",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\t/AFC/"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1050,
+    "opcodeIndex": 114,
+    "opcode": "VXSC",
+    "operand": "VAD",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVXSC\tVAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1055,
+    "opcodeIndex": 115,
+    "opcode": "DSU",
+    "operand": "PDDL",
+    "comment": "(4)",
+    "isInterpretive": true,
+    "raw": "\t\tDSU\tPDDL\t\t#\t\t\t\t(4)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1058,
+    "opcodeIndex": 116,
+    "opcode": "STODL",
+    "operand": "LASTTPIP",
+    "comment": "(2)",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tLASTTPIP\t#\t\t\t\t(2)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1059,
+    "opcodeIndex": 117,
+    "opcode": "DDV",
+    "operand": "BDDV",
+    "comment": "(0)",
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tBDDV\t\t#\t\t\t\t(0)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1061,
+    "opcodeIndex": 118,
+    "opcode": "DMP",
+    "operand": null,
+    "comment": "(2)",
+    "isInterpretive": true,
+    "raw": "\t\tPDDL\tDMP\t\t#\t\t\t\t(2)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1064,
+    "opcodeIndex": 119,
+    "opcode": "DDV",
+    "operand": "DDV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tDDV"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1068,
+    "opcodeIndex": 120,
+    "opcode": "DAD",
+    "operand": "PDDL",
+    "comment": "(4)",
+    "isInterpretive": true,
+    "raw": "\t\tDAD\tPDDL\t\t#\t\t\t\t(4)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1071,
+    "opcodeIndex": 121,
+    "opcode": "DDV",
+    "operand": "DSU",
+    "comment": "(2)",
+    "isInterpretive": true,
+    "raw": "\t\tDDV\tDSU\t\t#\t\t\t\t(2)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1073,
+    "opcodeIndex": 122,
+    "opcode": "DMP",
+    "operand": "DAD",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDMP\tDAD"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1076,
+    "opcodeIndex": 123,
+    "opcode": "DDV",
+    "operand": null,
+    "comment": "(4)",
+    "isInterpretive": true,
+    "raw": "\t\tPDDL\tDDV\t\t#\t\t\t\t(4)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1079,
+    "opcodeIndex": 124,
+    "opcode": "DDV",
+    "operand": null,
+    "comment": "(6)",
+    "isInterpretive": true,
+    "raw": "\t\tPDDL\tDDV\t\t#\t\t\t\t(6)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1084,
+    "opcodeIndex": 125,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": "(6)",
+    "isInterpretive": true,
+    "raw": "\t\tBMN\tDLOAD\t\t#\t\t\t\t(6)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1086,
+    "opcodeIndex": 126,
+    "opcode": "DLOAD",
+    "operand": "PUSH",
+    "comment": "(6)",
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\tPUSH\t\t#\t\t\t\t(6)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1090,
+    "opcodeIndex": 127,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": "(4)",
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\t\t\t#\t\t\t\t(4)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1091,
+    "opcodeIndex": 128,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": "(2), (4), OR (6)",
+    "isInterpretive": true,
+    "raw": "AFCSPOT\t\tDLOAD\t\t\t#\t\t\t\t(2), (4), OR (6)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1092,
+    "opcodeIndex": 129,
+    "opcode": "SETPD",
+    "operand": null,
+    "comment": "(2)",
+    "isInterpretive": true,
+    "raw": "\t\tSETPD\t\t\t#\t\t\t\t(2)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1094,
+    "opcodeIndex": 130,
+    "opcode": "STODL",
+    "operand": "/AFC/",
+    "comment": "(0)",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\t/AFC/\t\t#\t\t\t\t(0)"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1095,
+    "opcodeIndex": 131,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "ITRPNT2\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1100,
+    "opcodeIndex": 132,
+    "opcode": "VLOAD",
+    "operand": null,
+    "comment": "PICK UP UPDATED VELOCITY VECTOR.",
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\t\t\t# PICK UP UPDATED VELOCITY VECTOR."
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1106,
+    "opcodeIndex": 133,
+    "opcode": "UNIT",
+    "operand": "VXSC",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tUNIT\tVXSC"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1110,
+    "opcodeIndex": 134,
+    "opcode": "STORE",
+    "operand": "VHORIZ",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tVHORIZ"
+  },
+  {
+    "sourceFile": "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc",
+    "lineNumber": 1111,
+    "opcodeIndex": 135,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 189,
+    "opcodeIndex": 0,
+    "opcode": "DLOAD",
+    "operand": "DSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 192,
+    "opcodeIndex": 1,
+    "opcode": "STCALL",
+    "operand": "TDEC1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tTDEC1"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 194,
+    "opcodeIndex": 2,
+    "opcode": "CALL",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tBOFF\tCALL"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 198,
+    "opcodeIndex": 3,
+    "opcode": "VLOAD",
+    "operand": "MXV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tMXV"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 202,
+    "opcodeIndex": 4,
+    "opcode": "STOVL",
+    "operand": "V(CSM)",
+    "comment": "CSM VELOCITY -- M/CS*2(7)",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tV(CSM)\t\t# CSM VELOCITY -- M/CS*2(7)"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 204,
+    "opcodeIndex": 5,
+    "opcode": "MXV",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSL4\tMXV"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 206,
+    "opcodeIndex": 6,
+    "opcode": "STCALL",
+    "operand": "R(CSM)",
+    "comment": "CSM POSITION -- M*2(24)",
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tR(CSM)\t\t# CSM POSITION -- M*2(24)"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 208,
+    "opcodeIndex": 7,
+    "opcode": "STODL",
+    "operand": "G(CSM)",
+    "comment": "CSM GRAVITY VEC. -- M/CS*2(7)",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tG(CSM)\t\t# CSM GRAVITY VEC. -- M/CS*2(7)"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 210,
+    "opcodeIndex": 8,
+    "opcode": "STORE",
+    "operand": "TDEC1",
+    "comment": "RELOAD TDEC1 FOR MIDTOAV.",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tTDEC1\t\t# RELOAD TDEC1 FOR MIDTOAV."
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 242,
+    "opcodeIndex": 9,
+    "opcode": "VLOAD",
+    "operand": "ABVAL",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\tABVAL"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 244,
+    "opcodeIndex": 10,
+    "opcode": "STORE",
+    "operand": "ABVEL",
+    "comment": "INITIALIZE ABVEL FOR P63 DISPLAY",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tABVEL\t\t# INITIALIZE ABVEL FOR P63 DISPLAY"
+  },
+  {
+    "sourceFile": "Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc",
+    "lineNumber": 245,
+    "opcodeIndex": 11,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 77,
+    "opcodeIndex": 0,
+    "opcode": "SETPD",
+    "operand": "VLOAD",
+    "comment": "FIRST SET UP INPUTS FOR RP-TO-R:-",
+    "isInterpretive": true,
+    "raw": "IGNALG\t\tSETPD\tVLOAD\t\t# FIRST SET UP INPUTS FOR RP-TO-R:-"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 83,
+    "opcodeIndex": 1,
+    "opcode": "STCALL",
+    "operand": "TPIP",
+    "comment": "ALSO SET TPIP FOR FIRST GUIDANCE PASS",
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tTPIP\t\t# ALSO SET TPIP FOR FIRST GUIDANCE PASS"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 85,
+    "opcodeIndex": 2,
+    "opcode": "MXV",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSL4\tMXV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 87,
+    "opcodeIndex": 3,
+    "opcode": "STCALL",
+    "operand": "LAND",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tLAND"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 89,
+    "opcodeIndex": 4,
+    "opcode": "DLOAD",
+    "operand": "DSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 92,
+    "opcodeIndex": 5,
+    "opcode": "STCALL",
+    "operand": "TDEC1",
+    "comment": "INTEGRATE STATE FORWARD TO THAT TIME",
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tTDEC1\t\t# INTEGRATE STATE FORWARD TO THAT TIME"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 94,
+    "opcodeIndex": 6,
+    "opcode": "VLOAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSSP\tVLOAD"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 98,
+    "opcodeIndex": 7,
+    "opcode": "STOVL",
+    "operand": "CG",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tCG"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 100,
+    "opcodeIndex": 8,
+    "opcode": "STOVL",
+    "operand": "CG +6",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tCG +6"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 102,
+    "opcodeIndex": 9,
+    "opcode": "STODL",
+    "operand": "CG +14",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tCG +14"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 104,
+    "opcodeIndex": 10,
+    "opcode": "STOVL",
+    "operand": "DELTAH",
+    "comment": "INITIALIZE DELTAH FOR V16N68 DISPLAY",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tDELTAH\t\t# INITIALIZE DELTAH FOR V16N68 DISPLAY"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 106,
+    "opcodeIndex": 11,
+    "opcode": "STODL",
+    "operand": "UNFC/2",
+    "comment": "INITIALIZE TRIM VELOCITY CORRECTION TERM",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tUNFC/2\t\t# INITIALIZE TRIM VELOCITY CORRECTION TERM"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 108,
+    "opcodeIndex": 12,
+    "opcode": "STORE",
+    "operand": "TTF/8",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tTTF/8"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 110,
+    "opcodeIndex": 13,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "IGNALOOP\tDLOAD"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 112,
+    "opcodeIndex": 14,
+    "opcode": "STOVL",
+    "operand": "PIPTIME1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tPIPTIME1"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 114,
+    "opcodeIndex": 15,
+    "opcode": "MXV",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tVSL4\tMXV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 116,
+    "opcodeIndex": 16,
+    "opcode": "STCALL",
+    "operand": "R",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tR"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 118,
+    "opcodeIndex": 17,
+    "opcode": "STCALL",
+    "operand": "GDT/2",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tGDT/2"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 137,
+    "opcodeIndex": 18,
+    "opcode": "DLOAD",
+    "operand": "DMPR",
+    "comment": "FORM DENOMINATOR FIRST",
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD\tDMPR\t\t# FORM DENOMINATOR FIRST"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 142,
+    "opcodeIndex": 19,
+    "opcode": "DSU",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tPDDL\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 151,
+    "opcodeIndex": 20,
+    "opcode": "DSU",
+    "operand": "DMPR",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDSU\tDMPR"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 156,
+    "opcodeIndex": 21,
+    "opcode": "DSU",
+    "operand": "DMPR",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDSU\tDMPR"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 159,
+    "opcodeIndex": 22,
+    "opcode": "DAD",
+    "operand": "DAD",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDAD\tDAD"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 160,
+    "opcodeIndex": 23,
+    "opcode": "DAD",
+    "operand": "DDV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDAD\tDDV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 164,
+    "opcodeIndex": 24,
+    "opcode": "DAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tPUSH\tDAD"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 166,
+    "opcodeIndex": 25,
+    "opcode": "STODL",
+    "operand": "TDEC1",
+    "comment": "STORE NEW GUESS FOR NEXT INTEGRATION",
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tTDEC1\t\t# STORE NEW GUESS FOR NEXT INTEGRATION"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 167,
+    "opcodeIndex": 26,
+    "opcode": "ABS",
+    "operand": "DSU",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tABS\tDSU"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 169,
+    "opcodeIndex": 27,
+    "opcode": "CALL",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tBMN\tCALL"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 175,
+    "opcodeIndex": 28,
+    "opcode": "DLOAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDLOAD"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 177,
+    "opcodeIndex": 29,
+    "opcode": "STOVL",
+    "operand": "TET",
+    "comment": "HOPEFULLY ?GUIDSUB DID NOT",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tTET\t\t# HOPEFULLY ?GUIDSUB DID NOT"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 180,
+    "opcodeIndex": 30,
+    "opcode": "STOVL",
+    "operand": "RCV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tRCV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 182,
+    "opcodeIndex": 31,
+    "opcode": "STCALL",
+    "operand": "VCV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tVCV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 184,
+    "opcodeIndex": 32,
+    "opcode": "GOTO",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tGOTO"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 192,
+    "opcodeIndex": 33,
+    "opcode": "STOVL",
+    "operand": "TIG",
+    "comment": "COMPUTE DISTANCE LANDING SITE WILL BE",
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tTIG\t\t# COMPUTE DISTANCE LANDING SITE WILL BE"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 194,
+    "opcodeIndex": 34,
+    "opcode": "VXV",
+    "operand": "UNIT",
+    "comment": "SIGN IS + IF LANDING SITE IS TO THE",
+    "isInterpretive": true,
+    "raw": "\t\tVXV\tUNIT\t\t#   SIGN IS + IF LANDING SITE IS TO THE"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 196,
+    "opcodeIndex": 35,
+    "opcode": "DOT",
+    "operand": "SL1",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tDOT\tSL1"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 198,
+    "opcodeIndex": 36,
+    "opcode": "STOVL",
+    "operand": "OUTOFPLN",
+    "comment": "INITIALIZATION FOR CALCMANU",
+    "isInterpretive": true,
+    "raw": "R60INIT\t\tSTOVL\tOUTOFPLN\t# INITIALIZATION FOR CALCMANU"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 200,
+    "opcodeIndex": 37,
+    "opcode": "STORE",
+    "operand": "R60VSAVE",
+    "comment": "STORE UNFC/2 TEMPORARILY IN R60SAVE",
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tR60VSAVE\t# STORE UNFC/2 TEMPORARILY IN R60SAVE"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 201,
+    "opcodeIndex": 38,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 213,
+    "opcodeIndex": 39,
+    "opcode": "RTB",
+    "operand": null,
+    "comment": "GO PICK UP DISPLAY AT END OF R51:",
+    "isInterpretive": true,
+    "raw": "\t\tSSP\tRTB\t\t# GO PICK UP DISPLAY AT END OF R51:"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 217,
+    "opcodeIndex": 40,
+    "opcode": "VLOAD",
+    "operand": "UNIT",
+    "comment": "INITIALIZE KALCMANU FOR BURN ATTITUDE",
+    "isInterpretive": true,
+    "raw": "P63SPOT2\tVLOAD\tUNIT\t\t# INITIALIZE KALCMANU FOR BURN ATTITUDE"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 219,
+    "opcodeIndex": 41,
+    "opcode": "STOVL",
+    "operand": "POINTVSM",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTOVL\tPOINTVSM"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 221,
+    "opcodeIndex": 42,
+    "opcode": "STORE",
+    "operand": "SCAXIS",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tSCAXIS"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 222,
+    "opcodeIndex": 43,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 300,
+    "opcodeIndex": 44,
+    "opcode": "VLOAD",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSET\tVLOAD"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 303,
+    "opcodeIndex": 45,
+    "opcode": "STODL",
+    "operand": "ALPHAV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTODL\tALPHAV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 305,
+    "opcodeIndex": 46,
+    "opcode": "CALL",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSET\tCALL"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 308,
+    "opcodeIndex": 47,
+    "opcode": "SETPD",
+    "operand": "VLOAD",
+    "comment": "COMPUTE RLS AND STORE IT AWAY",
+    "isInterpretive": true,
+    "raw": "\t\tSETPD\tVLOAD\t\t# COMPUTE RLS AND STORE IT AWAY"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 313,
+    "opcodeIndex": 48,
+    "opcode": "CALL",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tPUSH\tCALL"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 315,
+    "opcodeIndex": 49,
+    "opcode": "STORE",
+    "operand": "RLS",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTORE\tRLS"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 316,
+    "opcodeIndex": 50,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 326,
+    "opcodeIndex": 51,
+    "opcode": "VLOAD",
+    "operand": null,
+    "comment": "INITIALIZE GSAV AND (USING REFMF)",
+    "isInterpretive": true,
+    "raw": "\t\tVLOAD\t\t\t# INITIALIZE GSAV AND (USING REFMF)"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 328,
+    "opcodeIndex": 52,
+    "opcode": "STCALL",
+    "operand": "GSAV",
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tSTCALL\tGSAV"
+  },
+  {
+    "sourceFile": "Luminary099/THE_LUNAR_LANDING.agc",
+    "lineNumber": 330,
+    "opcodeIndex": 53,
+    "opcode": "EXIT",
+    "operand": null,
+    "comment": null,
+    "isInterpretive": true,
+    "raw": "\t\tEXIT"
+  }
+]

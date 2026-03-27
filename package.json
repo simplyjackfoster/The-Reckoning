@@ -9,10 +9,12 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
+    "test": "npm run build && npm run test --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "markdownlint-cli2 *.md docs/**/*.md Luminary099/*.md --config .markdownlint.yml",
-    "lint:fix": "markdownlint-cli2 *.md docs/**/*.md Luminary099/*.md --config .markdownlint.yml --fix"
+    "lint:fix": "markdownlint-cli2 *.md docs/**/*.md Luminary099/*.md --config .markdownlint.yml --fix",
+    "guidance:extract": "bun scripts/extract-guidance.ts",
+    "guidance:run": "bun scripts/run-guidance-slice.ts"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",

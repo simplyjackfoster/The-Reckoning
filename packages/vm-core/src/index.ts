@@ -2,7 +2,8 @@ import type {
   EventSink,
   VmEvent,
   VmEventPayloadMap,
-  VmEventType
+  VmEventType,
+  VmSnapshotPayload
 } from '@dead-reckoning/event-stream';
 
 export type Word15 = number;
@@ -11,6 +12,26 @@ const WORD15_MASK = 0o77777;
 const WORD15_MODULUS = 0o100000;
 const SIGN_BIT = 0o40000;
 const NEGATIVE_ZERO = WORD15_MASK;
+const DEFAULT_MEMORY_SIZE = 256;
+
+export enum Opcode {
+  Nop = 0,
+  PushImmediate = 1,
+  PopToA = 2,
+  Add = 3,
+  SetLImmediate = 4,
+  SwapAL = 5,
+  Halt = 6,
+  Store = 7,
+  Load = 8,
+  Jump = 9,
+  JumpIfZero = 10,
+  Sub = 11,
+  Mul = 12,
+  Dup = 13,
+  Pop = 14,
+  Vadd3 = 15
+}
 
 export interface ZeroNormalizationOptions {
   readonly preserveNegativeZero?: boolean;
@@ -80,6 +101,15 @@ export function onesComplementAdd(lhs: Word15, rhs: Word15): Word15 {
   return normalizeWord15(sum);
 }
 
+export function onesComplementSubtract(lhs: Word15, rhs: Word15): Word15 {
+  return onesComplementAdd(lhs, onesComplementNegate(rhs));
+}
+
+export function onesComplementMultiply(lhs: Word15, rhs: Word15): Word15 {
+  const signedProduct = onesComplementToSigned(lhs) * onesComplementToSigned(rhs);
+  return signedToOnesComplement(signedProduct);
+}
+
 export interface VmRegisters {
   readonly a: Word15;
   readonly l: Word15;
@@ -92,6 +122,7 @@ export interface VmState {
   readonly pc: number;
   readonly stack: readonly Word15[];
   readonly registers: VmRegisters;
+  readonly memory: readonly Word15[];
   readonly halted: boolean;
   readonly haltReason: string | null;
 }
@@ -106,16 +137,32 @@ export interface StepResult {
 }
 
 interface DecodedInstruction {
-  readonly opcode: number;
+  readonly opcode: Opcode;
   readonly immediate: number;
 }
 
-export function createInitialVmState(): VmState {
+export interface VmOptions {
+  readonly memorySize?: number;
+  readonly initialMemory?: readonly number[];
+}
+
+export function encodeInstruction(opcode: Opcode, immediate = 0): Word15 {
+  const normalizedImmediate = immediate & 0x03ff;
+  return normalizeWord15(((opcode & 0b11111) << 10) | normalizedImmediate);
+}
+
+export function createInitialVmState(options: VmOptions = {}): VmState {
+  const memorySize = options.memorySize ?? DEFAULT_MEMORY_SIZE;
+  const memory = Array.from({ length: memorySize }, (_, index) =>
+    normalizeWord15(options.initialMemory?.[index] ?? 0)
+  );
+
   return {
     tick: 0,
     pc: 0,
     stack: [],
     registers: { a: 0, l: 0, q: 0, z: 0 },
+    memory,
     halted: false,
     haltReason: null
   };
@@ -123,19 +170,22 @@ export function createInitialVmState(): VmState {
 
 export class AgcInterpretiveVm {
   private seq = 0;
-  private state: VmState = createInitialVmState();
+  private state: VmState;
 
   constructor(
     private readonly program: VmProgram,
-    private readonly sink: EventSink
-  ) {}
+    private readonly sink: EventSink,
+    private readonly options: VmOptions = {}
+  ) {
+    this.state = createInitialVmState(options);
+  }
 
   snapshot(): VmState {
     return this.state;
   }
 
   reset(): VmState {
-    this.state = createInitialVmState();
+    this.state = createInitialVmState(this.options);
     this.emit('vm.reset', { pc: 0 });
     return this.state;
   }
@@ -151,12 +201,7 @@ export class AgcInterpretiveVm {
     if (currentWord === null) {
       this.advanceClock();
       this.halt('end-of-program');
-      this.emit('vm.step.end', {
-        pc: this.state.pc,
-        tick: this.state.tick,
-        halted: this.state.halted,
-        haltReason: this.state.haltReason
-      });
+      this.emitStepEnd();
 
       return { state: this.state, emitted: [] };
     }
@@ -165,14 +210,33 @@ export class AgcInterpretiveVm {
     this.executeInstruction(instruction);
     this.advanceClock();
 
+    this.emit('vm.snapshot', this.createSnapshotPayload(instruction));
+    this.emitStepEnd();
+
+    return { state: this.state, emitted: [] };
+  }
+
+  private emitStepEnd(): void {
     this.emit('vm.step.end', {
       pc: this.state.pc,
       tick: this.state.tick,
       halted: this.state.halted,
       haltReason: this.state.haltReason
     });
+  }
 
-    return { state: this.state, emitted: [] };
+  private createSnapshotPayload(instruction: DecodedInstruction): VmSnapshotPayload {
+    return {
+      pc: this.state.pc,
+      tick: this.state.tick,
+      opcode: instruction.opcode,
+      immediate: instruction.immediate,
+      stackDepth: this.state.stack.length,
+      stackTop: this.state.stack.at(-1) ?? null,
+      registers: this.state.registers,
+      halted: this.state.halted,
+      haltReason: this.state.haltReason
+    };
   }
 
   private readCurrentWord(): Word15 | null {
@@ -185,12 +249,12 @@ export class AgcInterpretiveVm {
   }
 
   private decodeInstruction(word: Word15): DecodedInstruction {
-    const opcode = (word >> 12) & 0b111;
-    const immediate12 = word & 0o7777;
+    const opcode = ((word >> 10) & 0b11111) as Opcode;
+    const immediate10 = word & 0x03ff;
 
     return {
       opcode,
-      immediate: signExtend12(immediate12)
+      immediate: signExtend10(immediate10)
     };
   }
 
@@ -202,31 +266,67 @@ export class AgcInterpretiveVm {
     });
 
     switch (instruction.opcode) {
-      case 0:
+      case Opcode.Nop:
         this.advancePc();
         return;
-      case 1:
+      case Opcode.PushImmediate:
         this.pushWord(signedToOnesComplement(instruction.immediate));
         this.advancePc();
         return;
-      case 2:
+      case Opcode.PopToA:
         this.popIntoRegister('a');
         this.advancePc();
         return;
-      case 3:
-        this.addTopTwo();
+      case Opcode.Add:
+        this.binaryStackOp(onesComplementAdd, 'stack-underflow:add');
         this.advancePc();
         return;
-      case 4:
+      case Opcode.SetLImmediate:
         this.writeRegister('l', signedToOnesComplement(instruction.immediate));
         this.advancePc();
         return;
-      case 5:
+      case Opcode.SwapAL:
         this.swapRegisters('a', 'l');
         this.advancePc();
         return;
-      case 6:
+      case Opcode.Halt:
         this.halt('halt-instruction');
+        this.advancePc();
+        return;
+      case Opcode.Store:
+        this.storeTopToMemory(instruction.immediate);
+        this.advancePc();
+        return;
+      case Opcode.Load:
+        this.pushWord(this.readMemory(instruction.immediate));
+        this.advancePc();
+        return;
+      case Opcode.Jump:
+        this.jumpRelative(instruction.immediate, 'always', true);
+        return;
+      case Opcode.JumpIfZero:
+        this.jumpIfZero(instruction.immediate);
+        return;
+      case Opcode.Sub:
+        this.binaryStackOp(onesComplementSubtract, 'stack-underflow:sub');
+        this.advancePc();
+        return;
+      case Opcode.Mul:
+        this.binaryStackOp(onesComplementMultiply, 'stack-underflow:mul');
+        this.advancePc();
+        return;
+      case Opcode.Dup:
+        this.dupTop();
+        this.advancePc();
+        return;
+      case Opcode.Pop:
+        if (this.popWord() === null) {
+          this.halt('stack-underflow:pop');
+        }
+        this.advancePc();
+        return;
+      case Opcode.Vadd3:
+        this.vadd3();
         this.advancePc();
         return;
       default:
@@ -235,16 +335,113 @@ export class AgcInterpretiveVm {
     }
   }
 
-  private addTopTwo(): void {
-    const rhs = this.popWord();
-    const lhs = this.popWord();
-    if (lhs === null || rhs === null) {
-      this.halt('stack-underflow:add');
+  private jumpIfZero(offset: number): void {
+    const top = this.state.stack.at(-1);
+    const isZero = top !== undefined && normalizeZero(top) === 0;
+
+    if (isZero) {
+      this.jumpRelative(offset, 'top-is-zero', true);
       return;
     }
 
-    const sum = onesComplementAdd(lhs, rhs);
-    this.pushWord(sum);
+    this.emit('vm.jump', {
+      fromPc: this.state.pc,
+      toPc: this.state.pc + 1,
+      condition: 'top-is-zero',
+      taken: false
+    });
+    this.advancePc();
+  }
+
+  private jumpRelative(offset: number, condition: 'always' | 'top-is-zero', taken: boolean): void {
+    const fromPc = this.state.pc;
+    const toPc = Math.max(0, this.state.pc + offset);
+
+    this.emit('vm.jump', {
+      fromPc,
+      toPc,
+      condition,
+      taken
+    });
+
+    this.state = {
+      ...this.state,
+      pc: toPc
+    };
+  }
+
+  private dupTop(): void {
+    const top = this.state.stack.at(-1);
+    if (top === undefined) {
+      this.halt('stack-underflow:dup');
+      return;
+    }
+
+    this.pushWord(top);
+  }
+
+  private vadd3(): void {
+    const b3 = this.popWord();
+    const b2 = this.popWord();
+    const b1 = this.popWord();
+    const a3 = this.popWord();
+    const a2 = this.popWord();
+    const a1 = this.popWord();
+
+    if ([a1, a2, a3, b1, b2, b3].some((value) => value === null)) {
+      this.halt('stack-underflow:vadd3');
+      return;
+    }
+
+    this.pushWord(onesComplementAdd(a1 as Word15, b1 as Word15));
+    this.pushWord(onesComplementAdd(a2 as Word15, b2 as Word15));
+    this.pushWord(onesComplementAdd(a3 as Word15, b3 as Word15));
+  }
+
+  private binaryStackOp(operation: (lhs: Word15, rhs: Word15) => Word15, underflowReason: string): void {
+    const rhs = this.popWord();
+    const lhs = this.popWord();
+    if (lhs === null || rhs === null) {
+      this.halt(underflowReason);
+      return;
+    }
+
+    const output = operation(lhs, rhs);
+    this.pushWord(output);
+  }
+
+  private storeTopToMemory(addressValue: number): void {
+    const top = this.state.stack.at(-1);
+    if (top === undefined) {
+      this.halt('stack-underflow:store');
+      return;
+    }
+
+    this.writeMemory(addressValue, top);
+  }
+
+  private readMemory(addressValue: number): Word15 {
+    const address = normalizeAddress(addressValue, this.state.memory.length);
+    return this.state.memory[address] ?? 0;
+  }
+
+  private writeMemory(addressValue: number, value: Word15): void {
+    const address = normalizeAddress(addressValue, this.state.memory.length);
+    const normalized = normalizeWord15(value);
+    const previous = this.state.memory[address] ?? 0;
+    const nextMemory = [...this.state.memory];
+    nextMemory[address] = normalized;
+
+    this.state = {
+      ...this.state,
+      memory: nextMemory
+    };
+
+    this.emit('vm.memory.write', {
+      address,
+      previous,
+      value: normalized
+    });
   }
 
   private popIntoRegister(register: keyof VmRegisters): void {
@@ -344,19 +541,24 @@ export class AgcInterpretiveVm {
     type: TType,
     payload: VmEventPayloadMap[TType]
   ): void {
-    const event: VmEvent = {
+    const event = {
       seq: this.seq,
       tick: this.state.tick,
       type,
       payload
-    };
+    } as VmEvent;
     this.seq += 1;
 
     this.sink.append(event);
   }
 }
 
-function signExtend12(value: number): number {
-  const normalized = value & 0xfff;
-  return (normalized & 0x800) === 0 ? normalized : normalized - 0x1000;
+function signExtend10(value: number): number {
+  const normalized = value & 0x03ff;
+  return (normalized & 0x0200) === 0 ? normalized : normalized - 0x0400;
+}
+
+function normalizeAddress(value: number, memoryLength: number): number {
+  const address = Math.trunc(Math.abs(value));
+  return address % memoryLength;
 }

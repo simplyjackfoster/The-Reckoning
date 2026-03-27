@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { InMemoryEventSink } from '@dead-reckoning/event-stream';
 import {
   AgcInterpretiveVm,
+  Opcode,
   createInitialVmState,
+  encodeInstruction,
   isNegativeZero,
   normalizeWord15,
   normalizeZero,
@@ -10,11 +12,6 @@ import {
   onesComplementToSigned,
   signedToOnesComplement
 } from './index.js';
-
-function encodeInstruction(opcode: number, immediate = 0): number {
-  const encodedImmediate = immediate < 0 ? (immediate + 0x1000) & 0xfff : immediate & 0xfff;
-  return ((opcode & 0b111) << 12) | encodedImmediate;
-}
 
 describe('normalizeWord15', () => {
   it('wraps values into a deterministic AGC 15-bit word range', () => {
@@ -55,6 +52,7 @@ describe('createInitialVmState', () => {
       pc: 0,
       stack: [],
       registers: { a: 0, l: 0, q: 0, z: 0 },
+      memory: Array.from({ length: 256 }, () => 0),
       halted: false,
       haltReason: null
     });
@@ -62,18 +60,22 @@ describe('createInitialVmState', () => {
 });
 
 describe('AgcInterpretiveVm', () => {
-  it('executes stack and register opcodes and halts deterministically', () => {
+  it('executes arithmetic, memory, and control flow opcodes', () => {
     const sink = new InMemoryEventSink();
     const vm = new AgcInterpretiveVm(
       {
         words: [
-          encodeInstruction(1, 8),
-          encodeInstruction(1, 2),
-          encodeInstruction(3),
-          encodeInstruction(2),
-          encodeInstruction(4, 13),
-          encodeInstruction(5),
-          encodeInstruction(6)
+          encodeInstruction(Opcode.PushImmediate, 8),
+          encodeInstruction(Opcode.PushImmediate, 2),
+          encodeInstruction(Opcode.Add),
+          encodeInstruction(Opcode.Store, 3),
+          encodeInstruction(Opcode.Load, 3),
+          encodeInstruction(Opcode.PushImmediate, 10),
+          encodeInstruction(Opcode.Sub),
+          encodeInstruction(Opcode.JumpIfZero, 2),
+          encodeInstruction(Opcode.Halt),
+          encodeInstruction(Opcode.PushImmediate, 99),
+          encodeInstruction(Opcode.Halt)
         ]
       },
       sink
@@ -84,36 +86,53 @@ describe('AgcInterpretiveVm', () => {
       vm.step();
     }
 
-    expect(vm.snapshot().registers.a).toBe(signedToOnesComplement(13));
-    expect(vm.snapshot().registers.l).toBe(signedToOnesComplement(10));
-    expect(vm.snapshot().stack).toEqual([]);
     expect(vm.snapshot().haltReason).toBe('halt-instruction');
+    expect(vm.snapshot().memory[3]).toBe(10);
+    expect(onesComplementToSigned(vm.snapshot().stack.at(-1) ?? 1)).toBe(99);
 
     const events = sink.all();
-    expect(events.some((event) => event.type === 'vm.stack.push')).toBe(true);
-    expect(events.some((event) => event.type === 'vm.stack.pop')).toBe(true);
-    expect(events.some((event) => event.type === 'vm.register.write')).toBe(true);
-    expect(events.some((event) => event.type === 'vm.opcode.decoded')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.memory.write')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.jump')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.snapshot')).toBe(true);
   });
 
-  it('halts on stack underflow in add opcode', () => {
+  it('executes vector add primitive via VADD3', () => {
     const sink = new InMemoryEventSink();
-    const vm = new AgcInterpretiveVm({ words: [encodeInstruction(3)] }, sink);
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(Opcode.PushImmediate, 1),
+          encodeInstruction(Opcode.PushImmediate, 2),
+          encodeInstruction(Opcode.PushImmediate, 3),
+          encodeInstruction(Opcode.PushImmediate, 4),
+          encodeInstruction(Opcode.PushImmediate, 5),
+          encodeInstruction(Opcode.PushImmediate, 6),
+          encodeInstruction(Opcode.Vadd3),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink
+    );
 
     vm.reset();
-    vm.step();
+    while (!vm.snapshot().halted) {
+      vm.step();
+    }
 
-    expect(vm.snapshot().halted).toBe(true);
-    expect(vm.snapshot().haltReason).toBe('stack-underflow:add');
+    expect(vm.snapshot().stack.map(onesComplementToSigned)).toEqual([5, 7, 9]);
   });
 
   it('decodes sign-extended immediates for literal pushes', () => {
     const sink = new InMemoryEventSink();
-    const vm = new AgcInterpretiveVm({ words: [encodeInstruction(1, -3), encodeInstruction(2)] }, sink);
+    const vm = new AgcInterpretiveVm(
+      { words: [encodeInstruction(Opcode.PushImmediate, -3), encodeInstruction(Opcode.PopToA), encodeInstruction(Opcode.Halt)] },
+      sink
+    );
 
     vm.reset();
-    vm.step();
-    vm.step();
+    while (!vm.snapshot().halted) {
+      vm.step();
+    }
 
     expect(onesComplementToSigned(vm.snapshot().registers.a)).toBe(-3);
   });

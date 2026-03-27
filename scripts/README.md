@@ -10,5 +10,16 @@ The extractor recognizes both `INTPRET` and `INTPRETX` entry points (`TC` and `T
 
 ```bash
 bun scripts/extract-guidance.ts
-bun scripts/extract-guidance.ts --output artifacts/guidance-lines.json
+bun scripts/extract-guidance.ts --output artifacts/powered-descent-trace-seed.json
+```
+
+## `run-guidance-slice.ts`
+
+Loads extracted guidance lines, compiles them into the local interpretive VM instruction set, and executes the generated program end to end with replay/event output summaries.
+
+### Usage
+
+```bash
+bun scripts/run-guidance-slice.ts
+bun scripts/run-guidance-slice.ts --input artifacts/powered-descent-trace-seed.json --limit 500
 ```
