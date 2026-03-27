@@ -38,7 +38,10 @@ export enum Opcode {
   Sign = 20,
   Div = 21,
   LoadVec3 = 22,
-  StoreVec3 = 23
+  StoreVec3 = 23,
+  Call = 24,
+  Return = 25,
+  JumpIfNonZero = 26
 }
 
 export interface ZeroNormalizationOptions {
@@ -139,6 +142,7 @@ export interface VmState {
   readonly tick: number;
   readonly pc: number;
   readonly stack: readonly Word15[];
+  readonly callStack: readonly number[];
   readonly registers: VmRegisters;
   readonly memory: readonly Word15[];
   readonly halted: boolean;
@@ -179,6 +183,7 @@ export function createInitialVmState(options: VmOptions = {}): VmState {
     tick: 0,
     pc: 0,
     stack: [],
+    callStack: [],
     registers: { a: 0, l: 0, q: 0, z: 0 },
     memory,
     halted: false,
@@ -251,6 +256,7 @@ export class AgcInterpretiveVm {
       immediate: instruction.immediate,
       stackDepth: this.state.stack.length,
       stackTop: this.state.stack.at(-1) ?? null,
+      callDepth: this.state.callStack.length,
       registers: this.state.registers,
       halted: this.state.halted,
       haltReason: this.state.haltReason
@@ -323,7 +329,10 @@ export class AgcInterpretiveVm {
         this.jumpRelative(instruction.immediate, 'always', true);
         return;
       case Opcode.JumpIfZero:
-        this.jumpIfZero(instruction.immediate);
+        this.jumpOnZero(instruction.immediate, true);
+        return;
+      case Opcode.JumpIfNonZero:
+        this.jumpOnZero(instruction.immediate, false);
         return;
       case Opcode.Sub:
         this.binaryStackOp(onesComplementSubtract, 'stack-underflow:sub');
@@ -379,31 +388,39 @@ export class AgcInterpretiveVm {
         this.storeVec3(instruction.immediate);
         this.advancePc();
         return;
+      case Opcode.Call:
+        this.callRelative(instruction.immediate);
+        return;
+      case Opcode.Return:
+        this.returnFromCall();
+        return;
       default:
         this.halt(`invalid-opcode:${instruction.opcode}`);
         this.advancePc();
     }
   }
 
-  private jumpIfZero(offset: number): void {
+  private jumpOnZero(offset: number, zeroBranch: boolean): void {
     const top = this.state.stack.at(-1);
     const isZero = top !== undefined && normalizeZero(top) === 0;
+    const taken = zeroBranch ? isZero : !isZero;
+    const condition = zeroBranch ? 'top-is-zero' : 'top-is-nonzero';
 
-    if (isZero) {
-      this.jumpRelative(offset, 'top-is-zero', true);
+    if (taken) {
+      this.jumpRelative(offset, condition, true);
       return;
     }
 
     this.emit('vm.jump', {
       fromPc: this.state.pc,
       toPc: this.state.pc + 1,
-      condition: 'top-is-zero',
+      condition,
       taken: false
     });
     this.advancePc();
   }
 
-  private jumpRelative(offset: number, condition: 'always' | 'top-is-zero', taken: boolean): void {
+  private jumpRelative(offset: number, condition: 'always' | 'top-is-zero' | 'top-is-nonzero', taken: boolean): void {
     const fromPc = this.state.pc;
     const toPc = Math.max(0, this.state.pc + offset);
 
@@ -418,6 +435,50 @@ export class AgcInterpretiveVm {
       ...this.state,
       pc: toPc
     };
+  }
+
+  private callRelative(offset: number): void {
+    const fromPc = this.state.pc;
+    const toPc = Math.max(0, fromPc + offset);
+    const returnPc = fromPc + 1;
+    const nextCallStack = [...this.state.callStack, returnPc];
+
+    this.writeRegister('q', signedToOnesComplement(returnPc));
+    this.state = {
+      ...this.state,
+      callStack: nextCallStack,
+      pc: toPc
+    };
+
+    this.emit('vm.call', {
+      fromPc,
+      toPc,
+      returnPc,
+      depthAfter: nextCallStack.length
+    });
+  }
+
+  private returnFromCall(): void {
+    const fromPc = this.state.pc;
+    const returnPc = this.state.callStack.at(-1);
+    if (returnPc === undefined) {
+      this.halt('callstack-underflow:return');
+      this.advancePc();
+      return;
+    }
+
+    const nextCallStack = this.state.callStack.slice(0, -1);
+    this.state = {
+      ...this.state,
+      callStack: nextCallStack,
+      pc: returnPc
+    };
+
+    this.emit('vm.return', {
+      fromPc,
+      toPc: returnPc,
+      depthAfter: nextCallStack.length
+    });
   }
 
   private dupTop(): void {

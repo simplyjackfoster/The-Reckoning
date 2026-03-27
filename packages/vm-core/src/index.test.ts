@@ -51,6 +51,7 @@ describe('createInitialVmState', () => {
       tick: 0,
       pc: 0,
       stack: [],
+      callStack: [],
       registers: { a: 0, l: 0, q: 0, z: 0 },
       memory: Array.from({ length: 256 }, () => 0),
       halted: false,
@@ -182,5 +183,38 @@ describe('AgcInterpretiveVm', () => {
     }
 
     expect(onesComplementToSigned(vm.snapshot().registers.a)).toBe(-3);
+  });
+
+  it('supports call/return and non-zero branching for subroutine flow', () => {
+    const sink = new InMemoryEventSink();
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(Opcode.PushImmediate, 2),
+          encodeInstruction(Opcode.Call, 4), // -> pc 5
+          encodeInstruction(Opcode.JumpIfNonZero, 2), // branch because stack top = 1
+          encodeInstruction(Opcode.PushImmediate, 99),
+          encodeInstruction(Opcode.Halt),
+          encodeInstruction(Opcode.PushImmediate, 1),
+          encodeInstruction(Opcode.Return),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink
+    );
+
+    vm.reset();
+    while (!vm.snapshot().halted) {
+      vm.step();
+    }
+
+    expect(vm.snapshot().haltReason).toBe('halt-instruction');
+    expect(onesComplementToSigned(vm.snapshot().stack.at(-1) ?? 0)).toBe(1);
+    expect(vm.snapshot().callStack).toEqual([]);
+    expect(onesComplementToSigned(vm.snapshot().registers.q)).toBe(2);
+
+    const events = sink.all();
+    expect(events.some((event) => event.type === 'vm.call')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.return')).toBe(true);
   });
 });

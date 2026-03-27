@@ -22,6 +22,7 @@ export interface CompiledInstruction {
   readonly sourceOpcode: string;
   readonly sourceOperand: string | null;
   readonly words: readonly number[];
+  readonly startPc: number;
 }
 
 export interface CompiledGuidanceProgram {
@@ -36,14 +37,24 @@ interface SymbolAllocation {
   readonly width: 1 | 3;
 }
 
+interface PendingControlWord {
+  readonly index: number;
+  readonly opcode: Opcode;
+  readonly target: string;
+}
+
 const VECTOR_HINTS = ['V', 'VEC', 'POS', 'VEL', 'LOS', 'R'];
+const CONTROL_OPCODES = new Set(['GOTO', 'CALL', 'RTB', 'BON', 'BOF']);
 
 export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGuidanceProgram {
   const words: number[] = [];
   const compiledInstructions: CompiledInstruction[] = [];
   const symbolPool = new SymbolAllocator();
   const memory = new MemoryBuilder();
+  const pcLabels = new Map<string, number>();
+  const pendingControl: PendingControlWord[] = [];
   let stackDepth = 0;
+  const hasExplicitCall = lines.some((line) => line.opcode.toUpperCase() === 'CALL');
 
   const ensureDepth = (required: number, seed: string): number[] => {
     const emitted: number[] = [];
@@ -59,8 +70,42 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
   for (const line of lines) {
     const loweredOpcode = line.opcode.toUpperCase();
     const emitted: number[] = [];
+    const startPc = words.length;
 
     const symbol = line.operand ? sanitizeSymbol(line.operand) : null;
+
+    if (loweredOpcode === 'LABEL') {
+      if (!symbol) {
+        continue;
+      }
+
+      pcLabels.set(symbol, words.length);
+      continue;
+    }
+
+    if (CONTROL_OPCODES.has(loweredOpcode)) {
+      const control = emitControlOpcode(loweredOpcode, symbol, words.length, hasExplicitCall);
+      emitted.push(control.word);
+      if (loweredOpcode !== 'RTB') {
+        pendingControl.push({
+          index: control.index,
+          opcode: control.opcode,
+          target: control.target
+        });
+      }
+
+      if (loweredOpcode === 'RTB') {
+        // no stack mutation
+      }
+      compiledInstructions.push({
+        sourceOpcode: loweredOpcode,
+        sourceOperand: symbol,
+        words: emitted,
+        startPc
+      });
+      words.push(...emitted);
+      continue;
+    }
 
     switch (loweredOpcode) {
       case 'DLOAD': {
@@ -153,8 +198,15 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
     compiledInstructions.push({
       sourceOpcode: loweredOpcode,
       sourceOperand: symbol,
-      words: emitted
+      words: emitted,
+      startPc
     });
+  }
+
+  for (const pending of pendingControl) {
+    const targetPc = resolveTargetPc(pending.target, pcLabels);
+    const offset = targetPc - pending.index;
+    words[pending.index] = encodeInstruction(pending.opcode, offset);
   }
 
   words.push(encodeInstruction(Opcode.Halt));
@@ -165,6 +217,82 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
     symbolTable: symbolPool.symbolTable(),
     initialMemory: memory.snapshot(symbolPool.maxAllocatedAddress() + 4)
   };
+}
+
+function emitControlOpcode(opcode: string, operand: string | null, index: number, hasExplicitCall: boolean): {
+  readonly word: number;
+  readonly index: number;
+  readonly opcode: Opcode;
+  readonly target: string;
+} {
+  if (opcode === 'RTB') {
+    if (!hasExplicitCall) {
+      return {
+        word: encodeInstruction(Opcode.Halt),
+        index,
+        opcode: Opcode.Halt,
+        target: '__HALT__'
+      };
+    }
+
+    return {
+      word: encodeInstruction(Opcode.Return),
+      index,
+      opcode: Opcode.Return,
+      target: '__RETURN__'
+    };
+  }
+
+  const target = operand ?? '';
+  if (!target) {
+    throw new Error(`control-opcode-missing-target:${opcode}`);
+  }
+
+  if (opcode === 'GOTO') {
+    return { word: encodeInstruction(Opcode.Jump, 0), index, opcode: Opcode.Jump, target };
+  }
+
+  if (opcode === 'CALL') {
+    return { word: encodeInstruction(Opcode.Call, 0), index, opcode: Opcode.Call, target };
+  }
+
+  if (opcode === 'BON') {
+    return { word: encodeInstruction(Opcode.JumpIfNonZero, 0), index, opcode: Opcode.JumpIfNonZero, target };
+  }
+
+  if (opcode === 'BOF') {
+    return { word: encodeInstruction(Opcode.JumpIfZero, 0), index, opcode: Opcode.JumpIfZero, target };
+  }
+
+  throw new Error(`unsupported-control-opcode:${opcode}`);
+}
+
+function resolveTargetPc(target: string, labels: ReadonlyMap<string, number>): number {
+  const inline = parseInlinePc(target);
+  if (inline !== null) {
+    return inline;
+  }
+
+  const label = labels.get(target);
+  if (label === undefined) {
+    throw new Error(`unresolved-label:${target}`);
+  }
+
+  return label;
+}
+
+function parseInlinePc(symbol: string): number | null {
+  const direct = symbol.match(/^PC_(-?\d+)$/i);
+  if (!direct) {
+    return null;
+  }
+
+  const parsed = Number.parseInt(direct[1] ?? '', 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`invalid-inline-pc:${symbol}`);
+  }
+
+  return parsed;
 }
 
 class SymbolAllocator {
@@ -237,7 +365,7 @@ function seededVector(symbol: string, seed: number): readonly [number, number, n
 }
 
 function sanitizeSymbol(input: string): string {
-  return input.trim().replace(/[,\s]+/g, '_').replace(/[^A-Z0-9_]/gi, '').toUpperCase();
+  return input.trim().replace(/[\s,]+/g, '_').replace(/[^A-Z0-9_]/gi, '').toUpperCase();
 }
 
 function symbolHash(input: string, modulo: number): number {

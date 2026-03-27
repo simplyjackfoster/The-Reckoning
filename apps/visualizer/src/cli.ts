@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { onesComplementToSigned } from '@dead-reckoning/vm-core';
-import { runGuidanceSlice, type GuidanceLine } from './index.js';
+import { runGuidanceSlice, type GuidanceLine } from '@dead-reckoning/runtime';
+import { buildFrameTimeline, renderAsciiTimeline } from './index.js';
 
 function parseArg(flagLong: string, flagShort: string): string | null {
   const args = process.argv.slice(2);
@@ -13,14 +14,32 @@ function parseArg(flagLong: string, flagShort: string): string | null {
   return args[index + 1] ?? null;
 }
 
+function parseNumber(value: string | null, fallback: number): number {
+  if (!value) {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function main() {
   const inputArg = parseArg('--input', '-i') ?? 'artifacts/powered-descent-trace-seed.json';
-  const limitArg = parseArg('--limit', '-n');
-  const limit = Number.parseInt(limitArg ?? '250', 10);
+  const limit = parseNumber(parseArg('--limit', '-n'), 250);
+  const maxSteps = parseNumber(parseArg('--max-steps', '-m'), 20_000);
+  const timelineCount = parseNumber(parseArg('--timeline', '-t'), 12);
+  const replayOut = parseArg('--replay-out', '-r');
 
   const lines = JSON.parse(readFileSync(resolve(inputArg), 'utf8')) as GuidanceLine[];
-  const slicedLines = lines.slice(0, Number.isFinite(limit) ? limit : 250);
-  const result = runGuidanceSlice(slicedLines, 20_000);
+  const slicedLines = lines.slice(0, Math.max(1, limit));
+  const result = runGuidanceSlice(slicedLines, maxSteps);
+  const frames = buildFrameTimeline(result.events);
+
+  if (replayOut) {
+    const resolvedReplayOut = resolve(replayOut);
+    writeFileSync(resolvedReplayOut, `${result.replay}\n`, 'utf8');
+    console.log(`Replay written: ${resolvedReplayOut}`);
+  }
 
   console.log(`Guidance lines compiled: ${slicedLines.length}`);
   console.log(`Program words: ${result.compiled.program.words.length}`);
@@ -38,6 +57,9 @@ function main() {
     .map(([name, address]) => `${name}@${address}=${onesComplementToSigned(result.finalState.memory[address] ?? 0)}`);
 
   console.log(`Symbol preview: ${topSymbols.join(' | ')}`);
+
+  console.log('\nRecent timeline:');
+  console.log(renderAsciiTimeline(frames, { maxFrames: timelineCount }));
 }
 
 main();

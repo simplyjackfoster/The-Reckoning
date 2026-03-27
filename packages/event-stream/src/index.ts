@@ -8,6 +8,8 @@ export type VmEventType =
   | 'vm.stack.pop'
   | 'vm.memory.write'
   | 'vm.jump'
+  | 'vm.call'
+  | 'vm.return'
   | 'vm.snapshot'
   | 'vm.halt';
 
@@ -20,6 +22,7 @@ export interface VmSnapshotPayload {
   readonly immediate: number;
   readonly stackDepth: number;
   readonly stackTop: number | null;
+  readonly callDepth: number;
   readonly registers: Readonly<Record<VmRegisterName, number>>;
   readonly halted: boolean;
   readonly haltReason: string | null;
@@ -65,8 +68,19 @@ export interface VmEventPayloadMap {
   readonly 'vm.jump': {
     readonly fromPc: number;
     readonly toPc: number;
-    readonly condition: 'always' | 'top-is-zero';
+    readonly condition: 'always' | 'top-is-zero' | 'top-is-nonzero';
     readonly taken: boolean;
+  };
+  readonly 'vm.call': {
+    readonly fromPc: number;
+    readonly toPc: number;
+    readonly returnPc: number;
+    readonly depthAfter: number;
+  };
+  readonly 'vm.return': {
+    readonly fromPc: number;
+    readonly toPc: number;
+    readonly depthAfter: number;
   };
   readonly 'vm.snapshot': VmSnapshotPayload;
   readonly 'vm.halt': {

@@ -10,9 +10,21 @@ import { compileGuidanceLines, type CompiledGuidanceProgram, type GuidanceLine }
 
 export type { GuidanceLine, CompiledGuidanceProgram } from './guidance-compiler.js';
 
+export interface RuntimeStats {
+  readonly eventCount: number;
+  readonly opcodeCount: number;
+  readonly jumpCount: number;
+  readonly callCount: number;
+  readonly returnCount: number;
+  readonly memoryWriteCount: number;
+  readonly maxStackDepth: number;
+  readonly maxCallDepth: number;
+}
+
 export interface RuntimeResult {
   readonly finalState: VmState;
   readonly events: readonly VmEvent[];
+  readonly stats: RuntimeStats;
 }
 
 export interface RuntimeReplayResult extends RuntimeResult {
@@ -48,9 +60,12 @@ export function runProgram(program: VmProgram, maxSteps = 1_000, options: VmOpti
     }
   }
 
+  const events = sink.all();
+
   return {
     finalState: vm.snapshot(),
-    events: sink.all()
+    events,
+    stats: summarizeRuntime(events)
   };
 }
 
@@ -84,6 +99,60 @@ export function runGuidanceSlice(
 
 export function readReplay(serialized: string): VmReplayLog {
   return deserializeReplayLog(serialized);
+}
+
+export function summarizeRuntime(events: readonly VmEvent[]): RuntimeStats {
+  let opcodeCount = 0;
+  let jumpCount = 0;
+  let callCount = 0;
+  let returnCount = 0;
+  let memoryWriteCount = 0;
+  let maxStackDepth = 0;
+  let maxCallDepth = 0;
+
+  for (const event of events) {
+    if (event.type === 'vm.opcode.decoded') {
+      opcodeCount += 1;
+      continue;
+    }
+
+    if (event.type === 'vm.jump') {
+      jumpCount += 1;
+      continue;
+    }
+
+    if (event.type === 'vm.call') {
+      callCount += 1;
+      maxCallDepth = Math.max(maxCallDepth, event.payload.depthAfter);
+      continue;
+    }
+
+    if (event.type === 'vm.return') {
+      returnCount += 1;
+      maxCallDepth = Math.max(maxCallDepth, event.payload.depthAfter);
+      continue;
+    }
+
+    if (event.type === 'vm.memory.write') {
+      memoryWriteCount += 1;
+      continue;
+    }
+
+    if (event.type === 'vm.stack.push') {
+      maxStackDepth = Math.max(maxStackDepth, event.payload.depthAfter);
+    }
+  }
+
+  return {
+    eventCount: events.length,
+    opcodeCount,
+    jumpCount,
+    callCount,
+    returnCount,
+    memoryWriteCount,
+    maxStackDepth,
+    maxCallDepth
+  };
 }
 
 export function verifyDeterministicReplay(
