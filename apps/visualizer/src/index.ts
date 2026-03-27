@@ -1,4 +1,4 @@
-import type { VmEvent } from '@dead-reckoning/event-stream';
+import type { VmEvent, VmRegisterName } from '@dead-reckoning/event-stream';
 
 export interface Frame {
   readonly tick: number;
@@ -20,11 +20,11 @@ export function renderFrame(events: readonly VmEvent[]): Frame {
   const haltedEvent = [...events].reverse().find((event) => event.type === 'vm.halt');
 
   const stack: number[] = [];
-  const registers = { a: 0, l: 0, q: 0, z: 0 };
+  const registers: Record<VmRegisterName, number> = { a: 0, l: 0, q: 0, z: 0 };
 
   for (const event of events) {
     if (event.type === 'vm.stack.push') {
-      stack.push(Number(event.payload.value));
+      stack.push(event.payload.value);
       continue;
     }
 
@@ -36,23 +36,22 @@ export function renderFrame(events: readonly VmEvent[]): Frame {
     if (event.type === 'vm.register.write') {
       const register = event.payload.register;
       if (isRegisterName(register)) {
-        registers[register] = Number(event.payload.value);
+        registers[register] = event.payload.value;
       }
     }
   }
 
   return {
-    tick: (lastStep?.payload.tick as number | undefined) ?? 0,
-    pc: (lastStep?.payload.pc as number | undefined) ?? null,
+    tick: lastStep?.payload.tick ?? 0,
+    pc: lastStep?.payload.pc ?? null,
     halted: Boolean(haltedEvent),
-    haltReason: (haltedEvent?.payload.reason as string | undefined) ?? null,
+    haltReason: haltedEvent?.payload.reason ?? null,
     stackDepth: stack.length,
     topOfStack: stack.at(-1) ?? null,
     registers
   };
 }
 
-
-function isRegisterName(value: unknown): value is keyof Frame['registers'] {
+function isRegisterName(value: unknown): value is VmRegisterName {
   return value === 'a' || value === 'l' || value === 'q' || value === 'z';
 }

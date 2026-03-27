@@ -90,8 +90,9 @@ This ensures interpreter logic remains pure and testable while rendering can evo
 
 ### Phase 4: Structured trace expansion
 
-- Enrich event payload contracts for opcode, operand, and state diffs.
-- Add replay serializer/deserializer and deterministic re-run checks.
+- ✅ Enrich event payload contracts for opcode, operand, and state diffs.
+- ✅ Add replay serializer/deserializer and deterministic re-run checks.
+- ✅ Add runtime replay APIs consumed by integration and visualizer tests.
 
 ### Phase 5: Minimal visual pipeline
 
