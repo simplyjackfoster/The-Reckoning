@@ -6,9 +6,24 @@ export type VmEventType =
   | 'vm.register.write'
   | 'vm.stack.push'
   | 'vm.stack.pop'
+  | 'vm.memory.write'
+  | 'vm.jump'
+  | 'vm.snapshot'
   | 'vm.halt';
 
 export type VmRegisterName = 'a' | 'l' | 'q' | 'z';
+
+export interface VmSnapshotPayload {
+  readonly pc: number;
+  readonly tick: number;
+  readonly opcode: number;
+  readonly immediate: number;
+  readonly stackDepth: number;
+  readonly stackTop: number | null;
+  readonly registers: Readonly<Record<VmRegisterName, number>>;
+  readonly halted: boolean;
+  readonly haltReason: string | null;
+}
 
 export interface VmEventPayloadMap {
   readonly 'vm.reset': {
@@ -42,6 +57,18 @@ export interface VmEventPayloadMap {
     readonly value: number;
     readonly depthAfter: number;
   };
+  readonly 'vm.memory.write': {
+    readonly address: number;
+    readonly previous: number;
+    readonly value: number;
+  };
+  readonly 'vm.jump': {
+    readonly fromPc: number;
+    readonly toPc: number;
+    readonly condition: 'always' | 'top-is-zero';
+    readonly taken: boolean;
+  };
+  readonly 'vm.snapshot': VmSnapshotPayload;
   readonly 'vm.halt': {
     readonly reason: string;
   };

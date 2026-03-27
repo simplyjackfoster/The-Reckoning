@@ -5,7 +5,10 @@ import {
   type VmEvent,
   type VmReplayLog
 } from '@dead-reckoning/event-stream';
-import { AgcInterpretiveVm, type VmProgram, type VmState } from '@dead-reckoning/vm-core';
+import { AgcInterpretiveVm, type VmOptions, type VmProgram, type VmState } from '@dead-reckoning/vm-core';
+import { compileGuidanceLines, type CompiledGuidanceProgram, type GuidanceLine } from './guidance-compiler.js';
+
+export type { GuidanceLine, CompiledGuidanceProgram } from './guidance-compiler.js';
 
 export interface RuntimeResult {
   readonly finalState: VmState;
@@ -29,9 +32,13 @@ export interface ReplayVerificationResult {
   readonly secondRun: RuntimeResult;
 }
 
-export function runProgram(program: VmProgram, maxSteps = 1_000): RuntimeResult {
+export interface GuidanceRuntimeResult extends RuntimeReplayResult {
+  readonly compiled: CompiledGuidanceProgram;
+}
+
+export function runProgram(program: VmProgram, maxSteps = 1_000, options: VmOptions = {}): RuntimeResult {
   const sink = new InMemoryEventSink();
-  const vm = new AgcInterpretiveVm(program, sink);
+  const vm = new AgcInterpretiveVm(program, sink, options);
   vm.reset();
 
   for (let i = 0; i < maxSteps; i += 1) {
@@ -47,12 +54,30 @@ export function runProgram(program: VmProgram, maxSteps = 1_000): RuntimeResult 
   };
 }
 
-export function runProgramWithReplay(program: VmProgram, maxSteps = 1_000): RuntimeReplayResult {
-  const result = runProgram(program, maxSteps);
+export function runProgramWithReplay(
+  program: VmProgram,
+  maxSteps = 1_000,
+  options: VmOptions = {}
+): RuntimeReplayResult {
+  const result = runProgram(program, maxSteps, options);
 
   return {
     ...result,
     replay: serializeReplayLog(result.events)
+  };
+}
+
+export function runGuidanceSlice(
+  lines: readonly GuidanceLine[],
+  maxSteps = 5_000,
+  options: VmOptions = {}
+): GuidanceRuntimeResult {
+  const compiled = compileGuidanceLines(lines);
+  const result = runProgramWithReplay(compiled.program, maxSteps, options);
+
+  return {
+    ...result,
+    compiled
   };
 }
 
@@ -62,10 +87,11 @@ export function readReplay(serialized: string): VmReplayLog {
 
 export function verifyDeterministicReplay(
   program: VmProgram,
-  maxSteps = 1_000
+  maxSteps = 1_000,
+  options: VmOptions = {}
 ): ReplayVerificationResult {
-  const firstRun = runProgram(program, maxSteps);
-  const secondRun = runProgram(program, maxSteps);
+  const firstRun = runProgram(program, maxSteps, options);
+  const secondRun = runProgram(program, maxSteps, options);
 
   const mismatch = findFirstReplayMismatch(firstRun.events, secondRun.events);
 
