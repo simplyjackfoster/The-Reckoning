@@ -2,7 +2,9 @@
 
 ## `extract-guidance.ts`
 
-Extracts interpretive-opcode lines from the key Luminary 099 powered-descent files and writes structured JSON for annotation processing.
+Extracts interpretive-opcode lines from key Luminary 099 powered-descent files and writes structured JSON for annotation processing.
+
+The extractor recognizes both `INTPRET` and `INTPRETX` entry points (`TC` and `TCF` calls), so it can capture interpretive sections that use the indexed entry trampoline.
 
 ### Usage
 
