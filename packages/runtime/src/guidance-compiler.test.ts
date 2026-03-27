@@ -3,7 +3,7 @@ import { Opcode } from '@dead-reckoning/vm-core';
 import { compileGuidanceLines, type GuidanceLine } from './guidance-compiler.js';
 
 function decodeOpcode(word: number): number {
-  return (word >> 10) & 0b11111;
+  return (word >> 9) & 0b111111;
 }
 
 describe('compileGuidanceLines', () => {

@@ -169,8 +169,8 @@ export interface VmOptions {
 }
 
 export function encodeInstruction(opcode: Opcode, immediate = 0): Word15 {
-  const normalizedImmediate = immediate & 0x03ff;
-  return normalizeWord15(((opcode & 0b11111) << 10) | normalizedImmediate);
+  const normalizedImmediate = immediate & 0x01ff;
+  return normalizeWord15(((opcode & 0b111111) << 9) | normalizedImmediate);
 }
 
 export function createInitialVmState(options: VmOptions = {}): VmState {
@@ -273,12 +273,12 @@ export class AgcInterpretiveVm {
   }
 
   private decodeInstruction(word: Word15): DecodedInstruction {
-    const opcode = ((word >> 10) & 0b11111) as Opcode;
-    const immediate10 = word & 0x03ff;
+    const opcode = ((word >> 9) & 0b111111) as Opcode;
+    const immediate9 = word & 0x01ff;
 
     return {
       opcode,
-      immediate: signExtend10(immediate10)
+      immediate: signExtend9(immediate9)
     };
   }
 
@@ -773,9 +773,9 @@ export class AgcInterpretiveVm {
   }
 }
 
-function signExtend10(value: number): number {
-  const normalized = value & 0x03ff;
-  return (normalized & 0x0200) === 0 ? normalized : normalized - 0x0400;
+function signExtend9(value: number): number {
+  const normalized = value & 0x01ff;
+  return (normalized & 0x0100) === 0 ? normalized : normalized - 0x0200;
 }
 
 function normalizeAddress(value: number, memoryLength: number): number {
