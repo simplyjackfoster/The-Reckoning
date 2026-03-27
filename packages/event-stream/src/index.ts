@@ -1,6 +1,7 @@
 export type VmEventType =
   | 'vm.reset'
   | 'vm.step.start'
+  | 'vm.opcode.decoded'
   | 'vm.step.end'
   | 'vm.register.write'
   | 'vm.stack.push'

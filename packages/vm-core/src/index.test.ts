@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryEventSink } from '@dead-reckoning/event-stream';
-import { AgcInterpretiveVm, createInitialVmState, normalizeWord15 } from './index.js';
+import {
+  AgcInterpretiveVm,
+  createInitialVmState,
+  isNegativeZero,
+  normalizeWord15,
+  normalizeZero,
+  onesComplementAdd,
+  onesComplementToSigned,
+  signedToOnesComplement
+} from './index.js';
+
+function encodeInstruction(opcode: number, immediate = 0): number {
+  const encodedImmediate = immediate < 0 ? (immediate + 0x1000) & 0xfff : immediate & 0xfff;
+  return ((opcode & 0b111) << 12) | encodedImmediate;
+}
 
 describe('normalizeWord15', () => {
   it('wraps values into a deterministic AGC 15-bit word range', () => {
@@ -11,51 +25,96 @@ describe('normalizeWord15', () => {
   });
 });
 
+describe('ones-complement helpers', () => {
+  it('converts between signed and ones-complement values', () => {
+    expect(signedToOnesComplement(37)).toBe(37);
+    expect(onesComplementToSigned(signedToOnesComplement(37))).toBe(37);
+
+    const negative = signedToOnesComplement(-37);
+    expect(onesComplementToSigned(negative)).toBe(-37);
+  });
+
+  it('represents and normalizes negative zero explicitly', () => {
+    expect(isNegativeZero(0o77777)).toBe(true);
+    expect(onesComplementToSigned(0o77777)).toBe(0);
+    expect(normalizeZero(0o77777)).toBe(0);
+    expect(normalizeZero(0o77777, { preserveNegativeZero: true })).toBe(0o77777);
+  });
+
+  it('implements end-around carry addition', () => {
+    const lhs = signedToOnesComplement(-1);
+    const rhs = signedToOnesComplement(1);
+    expect(onesComplementAdd(lhs, rhs)).toBe(0o77777);
+  });
+});
+
 describe('createInitialVmState', () => {
-  it('returns the phase-1 bootstrap VM state', () => {
+  it('returns the phase-2 bootstrap VM state', () => {
     expect(createInitialVmState()).toEqual({
       tick: 0,
       pc: 0,
       stack: [],
       registers: { a: 0, l: 0, q: 0, z: 0 },
-      halted: false
+      halted: false,
+      haltReason: null
     });
   });
 });
 
 describe('AgcInterpretiveVm', () => {
-  it('resets to invariant baseline state', () => {
+  it('executes stack and register opcodes and halts deterministically', () => {
     const sink = new InMemoryEventSink();
-    const vm = new AgcInterpretiveVm({ words: [42] }, sink);
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(1, 8),
+          encodeInstruction(1, 2),
+          encodeInstruction(3),
+          encodeInstruction(2),
+          encodeInstruction(4, 13),
+          encodeInstruction(5),
+          encodeInstruction(6)
+        ]
+      },
+      sink
+    );
 
-    vm.step();
     vm.reset();
+    while (!vm.snapshot().halted) {
+      vm.step();
+    }
 
-    expect(vm.snapshot()).toEqual(createInitialVmState());
-    expect(sink.all()[0]?.type).toBe('vm.step.start');
-    expect(sink.all().at(-1)?.type).toBe('vm.reset');
+    expect(vm.snapshot().registers.a).toBe(signedToOnesComplement(13));
+    expect(vm.snapshot().registers.l).toBe(signedToOnesComplement(10));
+    expect(vm.snapshot().stack).toEqual([]);
+    expect(vm.snapshot().haltReason).toBe('halt-instruction');
+
+    const events = sink.all();
+    expect(events.some((event) => event.type === 'vm.stack.push')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.stack.pop')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.register.write')).toBe(true);
+    expect(events.some((event) => event.type === 'vm.opcode.decoded')).toBe(true);
   });
 
-  it('keeps pc fixed and halts when program words are exhausted', () => {
+  it('halts on stack underflow in add opcode', () => {
     const sink = new InMemoryEventSink();
-    const vm = new AgcInterpretiveVm({ words: [42] }, sink);
+    const vm = new AgcInterpretiveVm({ words: [encodeInstruction(3)] }, sink);
 
     vm.reset();
-    vm.step();
     vm.step();
 
     expect(vm.snapshot().halted).toBe(true);
-    expect(vm.snapshot().pc).toBe(1);
-    expect(sink.all().at(-1)?.type).toBe('vm.step.end');
+    expect(vm.snapshot().haltReason).toBe('stack-underflow:add');
   });
 
-  it('normalizes fetched words before emitting step-start payloads', () => {
+  it('decodes sign-extended immediates for literal pushes', () => {
     const sink = new InMemoryEventSink();
-    const vm = new AgcInterpretiveVm({ words: [-1] }, sink);
+    const vm = new AgcInterpretiveVm({ words: [encodeInstruction(1, -3), encodeInstruction(2)] }, sink);
 
     vm.reset();
     vm.step();
+    vm.step();
 
-    expect(sink.all().find((event) => event.type === 'vm.step.start')?.payload.word).toBe(0o77777);
+    expect(onesComplementToSigned(vm.snapshot().registers.a)).toBe(-3);
   });
 });
