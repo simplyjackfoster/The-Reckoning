@@ -57,6 +57,10 @@ function main() {
     .map(([name, address]) => `${name}@${address}=${onesComplementToSigned(result.finalState.memory[address] ?? 0)}`);
 
   console.log(`Symbol preview: ${topSymbols.join(' | ')}`);
+  console.log(`Compiler warnings: ${result.compiled.warnings.length}`);
+  if (result.compiled.warnings.length > 0) {
+    console.log(`Warning preview: ${result.compiled.warnings.slice(0, 5).join(' | ')}`);
+  }
 
   console.log('\nRecent timeline:');
   console.log(renderAsciiTimeline(frames, { maxFrames: timelineCount }));

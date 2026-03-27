@@ -61,6 +61,7 @@ describe('compileGuidanceLines', () => {
     expect(compiled.symbolTable.RVEL).toBeGreaterThan(0);
     expect(compiled.symbolTable.OUTV).toBeGreaterThan(0);
     expect(compiled.initialMemory.length).toBeGreaterThan(compiled.symbolTable.OUTV);
+    expect(compiled.warnings).toEqual([]);
   });
 
   it('compiles label-based branching and call/return control flow', () => {
@@ -98,6 +99,12 @@ describe('compileGuidanceLines', () => {
 
     const compiled = compileGuidanceLines(lines);
     expect(compiled.program.words.length).toBeGreaterThan(0);
+  });
+
+  it('degrades missing control-flow targets into warnings instead of throwing', () => {
+    const compiled = compileGuidanceLines([mkLine(0, 'CALL', null)]);
+    expect(compiled.program.words.length).toBeGreaterThan(0);
+    expect(compiled.warnings.some((warning) => warning.startsWith('missing-target:CALL'))).toBe(true);
   });
 });
 

@@ -30,6 +30,7 @@ export interface CompiledGuidanceProgram {
   readonly compiledInstructions: readonly CompiledInstruction[];
   readonly symbolTable: Readonly<Record<string, number>>;
   readonly initialMemory: readonly number[];
+  readonly warnings: readonly string[];
 }
 
 interface SymbolAllocation {
@@ -53,8 +54,9 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
   const memory = new MemoryBuilder();
   const pcLabels = new Map<string, number>();
   const pendingControl: PendingControlWord[] = [];
+  const warnings: string[] = [];
   let stackDepth = 0;
-  const hasExplicitCall = lines.some((line) => line.opcode.toUpperCase() === 'CALL');
+  let staticCallDepth = 0;
 
   const ensureDepth = (required: number, seed: string): number[] => {
     const emitted: number[] = [];
@@ -84,7 +86,7 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
     }
 
     if (CONTROL_OPCODES.has(loweredOpcode)) {
-      const control = emitControlOpcode(loweredOpcode, symbol, words.length, hasExplicitCall);
+      const control = emitControlOpcode(loweredOpcode, symbol, words.length, staticCallDepth, warnings, line);
       emitted.push(control.word);
       if (loweredOpcode !== 'RTB') {
         pendingControl.push({
@@ -95,7 +97,13 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
       }
 
       if (loweredOpcode === 'RTB') {
-        // no stack mutation
+        if (staticCallDepth > 0) {
+          staticCallDepth -= 1;
+        }
+      }
+
+      if (loweredOpcode === 'CALL' && symbol) {
+        staticCallDepth += 1;
       }
       compiledInstructions.push({
         sourceOpcode: loweredOpcode,
@@ -204,7 +212,7 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
   }
 
   for (const pending of pendingControl) {
-    const targetPc = resolveTargetPc(pending.target, pcLabels);
+    const targetPc = resolveTargetPc(pending.target, pcLabels, warnings);
     const offset = targetPc - pending.index;
     words[pending.index] = encodeInstruction(pending.opcode, offset);
   }
@@ -215,18 +223,27 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
     program: { words },
     compiledInstructions,
     symbolTable: symbolPool.symbolTable(),
-    initialMemory: memory.snapshot(symbolPool.maxAllocatedAddress() + 4)
+    initialMemory: memory.snapshot(symbolPool.maxAllocatedAddress() + 4),
+    warnings
   };
 }
 
-function emitControlOpcode(opcode: string, operand: string | null, index: number, hasExplicitCall: boolean): {
+function emitControlOpcode(
+  opcode: string,
+  operand: string | null,
+  index: number,
+  staticCallDepth: number,
+  warnings: string[],
+  line: GuidanceLine
+): {
   readonly word: number;
   readonly index: number;
   readonly opcode: Opcode;
   readonly target: string;
 } {
   if (opcode === 'RTB') {
-    if (!hasExplicitCall) {
+    if (staticCallDepth === 0) {
+      warnings.push(`orphan-rtb:${line.sourceFile}:${line.lineNumber}`);
       return {
         word: encodeInstruction(Opcode.Halt),
         index,
@@ -245,7 +262,13 @@ function emitControlOpcode(opcode: string, operand: string | null, index: number
 
   const target = operand ?? '';
   if (!target) {
-    throw new Error(`control-opcode-missing-target:${opcode}`);
+    warnings.push(`missing-target:${opcode}:${line.sourceFile}:${line.lineNumber}`);
+    return {
+      word: encodeInstruction(Opcode.Nop),
+      index,
+      opcode: Opcode.Nop,
+      target: '__MISSING_TARGET__'
+    };
   }
 
   if (opcode === 'GOTO') {
@@ -267,7 +290,11 @@ function emitControlOpcode(opcode: string, operand: string | null, index: number
   throw new Error(`unsupported-control-opcode:${opcode}`);
 }
 
-function resolveTargetPc(target: string, labels: ReadonlyMap<string, number>): number {
+function resolveTargetPc(target: string, labels: ReadonlyMap<string, number>, warnings: string[]): number {
+  if (target.startsWith('__')) {
+    return 0;
+  }
+
   const inline = parseInlinePc(target);
   if (inline !== null) {
     return inline;
@@ -275,7 +302,8 @@ function resolveTargetPc(target: string, labels: ReadonlyMap<string, number>): n
 
   const label = labels.get(target);
   if (label === undefined) {
-    throw new Error(`unresolved-label:${target}`);
+    warnings.push(`unresolved-label:${target}`);
+    return 0;
   }
 
   return label;
