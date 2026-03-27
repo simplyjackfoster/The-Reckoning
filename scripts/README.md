@@ -15,7 +15,7 @@ bun scripts/extract-guidance.ts --output artifacts/powered-descent-trace-seed.js
 
 ## `run-guidance-slice.ts`
 
-Builds workspaces, runs the guidance slice through runtime + visualizer integration, and prints execution metrics plus a compact ASCII timeline.
+Builds workspaces, runs the guidance slice through runtime + visualizer integration, and prints execution metrics plus a compact ASCII timeline. The CLI also reports compiler warnings for unresolved/missing control-flow targets so runs remain debuggable without hard failure.
 
 ### Usage
 
