@@ -60,6 +60,13 @@ describe('createInitialVmState', () => {
   });
 });
 
+describe('instruction encoding', () => {
+  it('supports 6-bit opcodes and 9-bit signed immediates', () => {
+    expect(encodeInstruction(Opcode.JumpIfNonZero, 255)).toBe((Opcode.JumpIfNonZero << 9) | 0x0ff);
+    expect(encodeInstruction(Opcode.JumpIfNonZero, -256)).toBe((Opcode.JumpIfNonZero << 9) | 0x100);
+  });
+});
+
 describe('AgcInterpretiveVm', () => {
   it('executes arithmetic, memory, and control flow opcodes', () => {
     const sink = new InMemoryEventSink();
@@ -183,6 +190,29 @@ describe('AgcInterpretiveVm', () => {
     }
 
     expect(onesComplementToSigned(vm.snapshot().registers.a)).toBe(-3);
+  });
+
+  it('decodes 9-bit immediate boundaries', () => {
+    const sink = new InMemoryEventSink();
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(Opcode.PushImmediate, 255),
+          encodeInstruction(Opcode.PopToA),
+          encodeInstruction(Opcode.PushImmediate, -256),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink
+    );
+
+    vm.reset();
+    while (!vm.snapshot().halted) {
+      vm.step();
+    }
+
+    expect(onesComplementToSigned(vm.snapshot().registers.a)).toBe(255);
+    expect(onesComplementToSigned(vm.snapshot().stack.at(-1) ?? 0)).toBe(-256);
   });
 
   it('supports call/return and non-zero branching for subroutine flow', () => {
