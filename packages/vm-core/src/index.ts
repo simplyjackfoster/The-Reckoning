@@ -1,4 +1,9 @@
-import type { EventSink, VmEvent, VmEventType } from '@dead-reckoning/event-stream';
+import type {
+  EventSink,
+  VmEvent,
+  VmEventPayloadMap,
+  VmEventType
+} from '@dead-reckoning/event-stream';
 
 export type Word15 = number;
 
@@ -335,7 +340,10 @@ export class AgcInterpretiveVm {
     this.emit('vm.halt', { reason });
   }
 
-  private emit(type: VmEventType, payload: Record<string, unknown>): void {
+  private emit<TType extends VmEventType>(
+    type: TType,
+    payload: VmEventPayloadMap[TType]
+  ): void {
     const event: VmEvent = {
       seq: this.seq,
       tick: this.state.tick,

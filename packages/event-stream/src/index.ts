@@ -8,14 +8,60 @@ export type VmEventType =
   | 'vm.stack.pop'
   | 'vm.halt';
 
-export interface VmEventBase {
-  readonly seq: number;
-  readonly tick: number;
-  readonly type: VmEventType;
-  readonly payload: Readonly<Record<string, unknown>>;
+export type VmRegisterName = 'a' | 'l' | 'q' | 'z';
+
+export interface VmEventPayloadMap {
+  readonly 'vm.reset': {
+    readonly pc: number;
+  };
+  readonly 'vm.step.start': {
+    readonly pc: number;
+    readonly word: number | null;
+  };
+  readonly 'vm.opcode.decoded': {
+    readonly pc: number;
+    readonly opcode: number;
+    readonly immediate: number;
+  };
+  readonly 'vm.step.end': {
+    readonly pc: number;
+    readonly tick: number;
+    readonly halted: boolean;
+    readonly haltReason?: string | null;
+  };
+  readonly 'vm.register.write': {
+    readonly register: VmRegisterName;
+    readonly previous: number;
+    readonly value: number;
+  };
+  readonly 'vm.stack.push': {
+    readonly value: number;
+    readonly depthAfter: number;
+  };
+  readonly 'vm.stack.pop': {
+    readonly value: number;
+    readonly depthAfter: number;
+  };
+  readonly 'vm.halt': {
+    readonly reason: string;
+  };
 }
 
-export type VmEvent = VmEventBase;
+export interface VmEventBase<TType extends VmEventType> {
+  readonly seq: number;
+  readonly tick: number;
+  readonly type: TType;
+  readonly payload: Readonly<VmEventPayloadMap[TType]>;
+}
+
+export type VmEvent = {
+  [TType in VmEventType]: VmEventBase<TType>;
+}[VmEventType];
+
+export interface VmReplayLog {
+  readonly schemaVersion: 1;
+  readonly events: readonly VmEvent[];
+}
 
 export interface EventSink {
   append(event: VmEvent): void;
@@ -35,4 +81,31 @@ export class InMemoryEventSink implements EventSink {
   clear(): void {
     this.events.length = 0;
   }
+}
+
+export function serializeReplayLog(events: readonly VmEvent[]): string {
+  const replay: VmReplayLog = {
+    schemaVersion: 1,
+    events
+  };
+
+  return JSON.stringify(replay);
+}
+
+export function deserializeReplayLog(serialized: string): VmReplayLog {
+  const parsed = JSON.parse(serialized) as Partial<VmReplayLog>;
+
+  if (parsed.schemaVersion !== 1) {
+    throw new Error('unsupported-replay-schema');
+  }
+
+  if (!Array.isArray(parsed.events)) {
+    throw new Error('invalid-replay-events');
+  }
+
+  const events = parsed.events as VmEvent[];
+  return {
+    schemaVersion: 1,
+    events
+  };
 }
