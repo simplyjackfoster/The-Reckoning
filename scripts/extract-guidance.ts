@@ -15,8 +15,9 @@ type InterpretiveLine = {
 const FILES = [
   [
     'Luminary099/POWERED_DESCENT_INITIALIZAION.agc',
-    'Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc',
+    'Luminary099/POWERED_FLIGHT_SUBROUTINES.agc',
   ],
+  ['Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc'],
   ['Luminary099/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc'],
   ['Luminary099/THE_LUNAR_LANDING.agc'],
 ] as const
@@ -32,7 +33,8 @@ const INTERP_OPCODES = new Set([
 
 function stripLabelToken(token: string | undefined): string {
   if (!token) return ''
-  return token.endsWith(':') ? token.slice(0, -1) : token
+  const withoutTrailingPunctuation = token.replace(/[:,]$/, '')
+  return withoutTrailingPunctuation
 }
 
 function parseInstruction(content: string): { opcode: string | null; operand: string | null } {
@@ -81,7 +83,7 @@ function extractFromFile(sourceFile: string): InterpretiveLine[] {
   lines.forEach((rawLine, index) => {
     const lineNumber = index + 1
 
-    if (/\bTC\s+INTPRET\b/.test(rawLine)) {
+    if (/\b(TC|TCF)\s+INTPRETX?\b/.test(rawLine)) {
       inInterpretive = true
     }
 
