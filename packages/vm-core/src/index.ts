@@ -30,7 +30,15 @@ export enum Opcode {
   Mul = 12,
   Dup = 13,
   Pop = 14,
-  Vadd3 = 15
+  Vadd3 = 15,
+  Vsub3 = 16,
+  Vxsc = 17,
+  Dot3 = 18,
+  Abs = 19,
+  Sign = 20,
+  Div = 21,
+  LoadVec3 = 22,
+  StoreVec3 = 23
 }
 
 export interface ZeroNormalizationOptions {
@@ -108,6 +116,16 @@ export function onesComplementSubtract(lhs: Word15, rhs: Word15): Word15 {
 export function onesComplementMultiply(lhs: Word15, rhs: Word15): Word15 {
   const signedProduct = onesComplementToSigned(lhs) * onesComplementToSigned(rhs);
   return signedToOnesComplement(signedProduct);
+}
+
+export function onesComplementDivide(lhs: Word15, rhs: Word15): Word15 | null {
+  const denominator = onesComplementToSigned(rhs);
+  if (denominator === 0) {
+    return null;
+  }
+
+  const quotient = Math.trunc(onesComplementToSigned(lhs) / denominator);
+  return signedToOnesComplement(quotient);
 }
 
 export interface VmRegisters {
@@ -329,6 +347,38 @@ export class AgcInterpretiveVm {
         this.vadd3();
         this.advancePc();
         return;
+      case Opcode.Vsub3:
+        this.vsub3();
+        this.advancePc();
+        return;
+      case Opcode.Vxsc:
+        this.vxsc();
+        this.advancePc();
+        return;
+      case Opcode.Dot3:
+        this.dot3();
+        this.advancePc();
+        return;
+      case Opcode.Abs:
+        this.absTop();
+        this.advancePc();
+        return;
+      case Opcode.Sign:
+        this.signTop();
+        this.advancePc();
+        return;
+      case Opcode.Div:
+        this.divTop();
+        this.advancePc();
+        return;
+      case Opcode.LoadVec3:
+        this.loadVec3(instruction.immediate);
+        this.advancePc();
+        return;
+      case Opcode.StoreVec3:
+        this.storeVec3(instruction.immediate);
+        this.advancePc();
+        return;
       default:
         this.halt(`invalid-opcode:${instruction.opcode}`);
         this.advancePc();
@@ -381,21 +431,130 @@ export class AgcInterpretiveVm {
   }
 
   private vadd3(): void {
-    const b3 = this.popWord();
-    const b2 = this.popWord();
-    const b1 = this.popWord();
-    const a3 = this.popWord();
-    const a2 = this.popWord();
-    const a1 = this.popWord();
-
-    if ([a1, a2, a3, b1, b2, b3].some((value) => value === null)) {
+    const rhs = this.popVector3();
+    const lhs = this.popVector3();
+    if (!rhs || !lhs) {
       this.halt('stack-underflow:vadd3');
       return;
     }
 
-    this.pushWord(onesComplementAdd(a1 as Word15, b1 as Word15));
-    this.pushWord(onesComplementAdd(a2 as Word15, b2 as Word15));
-    this.pushWord(onesComplementAdd(a3 as Word15, b3 as Word15));
+    this.pushWord(onesComplementAdd(lhs[0], rhs[0]));
+    this.pushWord(onesComplementAdd(lhs[1], rhs[1]));
+    this.pushWord(onesComplementAdd(lhs[2], rhs[2]));
+  }
+
+  private vsub3(): void {
+    const rhs = this.popVector3();
+    const lhs = this.popVector3();
+    if (!rhs || !lhs) {
+      this.halt('stack-underflow:vsub3');
+      return;
+    }
+
+    this.pushWord(onesComplementSubtract(lhs[0], rhs[0]));
+    this.pushWord(onesComplementSubtract(lhs[1], rhs[1]));
+    this.pushWord(onesComplementSubtract(lhs[2], rhs[2]));
+  }
+
+  private vxsc(): void {
+    const scalar = this.popWord();
+    const vector = this.popVector3();
+    if (!vector || scalar === null) {
+      this.halt('stack-underflow:vxsc');
+      return;
+    }
+
+    this.pushWord(onesComplementMultiply(vector[0], scalar));
+    this.pushWord(onesComplementMultiply(vector[1], scalar));
+    this.pushWord(onesComplementMultiply(vector[2], scalar));
+  }
+
+  private dot3(): void {
+    const rhs = this.popVector3();
+    const lhs = this.popVector3();
+    if (!rhs || !lhs) {
+      this.halt('stack-underflow:dot3');
+      return;
+    }
+
+    const product0 = onesComplementMultiply(lhs[0], rhs[0]);
+    const product1 = onesComplementMultiply(lhs[1], rhs[1]);
+    const product2 = onesComplementMultiply(lhs[2], rhs[2]);
+    const sum = onesComplementAdd(onesComplementAdd(product0, product1), product2);
+    this.pushWord(sum);
+  }
+
+  private absTop(): void {
+    const value = this.popWord();
+    if (value === null) {
+      this.halt('stack-underflow:abs');
+      return;
+    }
+
+    const signed = Math.abs(onesComplementToSigned(value));
+    this.pushWord(signedToOnesComplement(signed));
+  }
+
+  private signTop(): void {
+    const value = this.popWord();
+    if (value === null) {
+      this.halt('stack-underflow:sign');
+      return;
+    }
+
+    const signed = onesComplementToSigned(value);
+    const sign = signed === 0 ? 0 : signed > 0 ? 1 : -1;
+    this.pushWord(signedToOnesComplement(sign));
+  }
+
+  private divTop(): void {
+    const rhs = this.popWord();
+    const lhs = this.popWord();
+
+    if (lhs === null || rhs === null) {
+      this.halt('stack-underflow:div');
+      return;
+    }
+
+    const quotient = onesComplementDivide(lhs, rhs);
+    if (quotient === null) {
+      this.halt('division-by-zero');
+      return;
+    }
+
+    this.pushWord(quotient);
+  }
+
+  private loadVec3(baseAddress: number): void {
+    this.pushWord(this.readMemory(baseAddress));
+    this.pushWord(this.readMemory(baseAddress + 1));
+    this.pushWord(this.readMemory(baseAddress + 2));
+  }
+
+  private storeVec3(baseAddress: number): void {
+    const x = this.state.stack.at(-3);
+    const y = this.state.stack.at(-2);
+    const z = this.state.stack.at(-1);
+    if (x === undefined || y === undefined || z === undefined) {
+      this.halt('stack-underflow:store-vec3');
+      return;
+    }
+
+    this.writeMemory(baseAddress, x);
+    this.writeMemory(baseAddress + 1, y);
+    this.writeMemory(baseAddress + 2, z);
+  }
+
+  private popVector3(): readonly [Word15, Word15, Word15] | null {
+    const z = this.popWord();
+    const y = this.popWord();
+    const x = this.popWord();
+
+    if (x === null || y === null || z === null) {
+      return null;
+    }
+
+    return [x, y, z];
   }
 
   private binaryStackOp(operation: (lhs: Word15, rhs: Word15) => Word15, underflowReason: string): void {

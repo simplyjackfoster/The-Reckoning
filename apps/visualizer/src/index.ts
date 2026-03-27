@@ -13,14 +13,29 @@ export interface Frame {
     readonly q: number;
     readonly z: number;
   };
+  readonly lastOpcode: number | null;
+  readonly lastImmediate: number | null;
+}
+
+export type PlaybackMode = 'realtime' | 'fixed-rate' | 'single-step' | 'paused';
+
+export interface PlaybackState {
+  readonly mode: PlaybackMode;
+  readonly cursor: number;
+  readonly frames: readonly Frame[];
 }
 
 export function renderFrame(events: readonly VmEvent[]): Frame {
-  const lastStep = [...events].reverse().find((event) => event.type === 'vm.step.end');
-  const haltedEvent = [...events].reverse().find((event) => event.type === 'vm.halt');
+  return buildFrameTimeline(events).at(-1) ?? createInitialFrame();
+}
 
+export function buildFrameTimeline(events: readonly VmEvent[]): readonly Frame[] {
   const stack: number[] = [];
   const registers: Record<VmRegisterName, number> = { a: 0, l: 0, q: 0, z: 0 };
+  const frames: Frame[] = [];
+  let haltedReason: string | null = null;
+  let lastOpcode: number | null = null;
+  let lastImmediate: number | null = null;
 
   for (const event of events) {
     if (event.type === 'vm.stack.push') {
@@ -38,17 +53,111 @@ export function renderFrame(events: readonly VmEvent[]): Frame {
       if (isRegisterName(register)) {
         registers[register] = event.payload.value;
       }
+      continue;
+    }
+
+    if (event.type === 'vm.opcode.decoded') {
+      lastOpcode = event.payload.opcode;
+      lastImmediate = event.payload.immediate;
+      continue;
+    }
+
+    if (event.type === 'vm.halt') {
+      haltedReason = event.payload.reason;
+      continue;
+    }
+
+    if (event.type === 'vm.step.end') {
+      frames.push({
+        tick: event.payload.tick,
+        pc: event.payload.pc,
+        halted: event.payload.halted,
+        haltReason: haltedReason,
+        stackDepth: stack.length,
+        topOfStack: stack.at(-1) ?? null,
+        registers: {
+          a: registers.a,
+          l: registers.l,
+          q: registers.q,
+          z: registers.z
+        },
+        lastOpcode,
+        lastImmediate
+      });
     }
   }
 
+  return frames;
+}
+
+export class PlaybackController {
+  private state: PlaybackState;
+
+  constructor(frames: readonly Frame[]) {
+    this.state = {
+      mode: 'paused',
+      cursor: 0,
+      frames
+    };
+  }
+
+  snapshot(): PlaybackState {
+    return this.state;
+  }
+
+  setMode(mode: PlaybackMode): PlaybackState {
+    this.state = {
+      ...this.state,
+      mode
+    };
+
+    return this.state;
+  }
+
+  stepForward(count = 1): PlaybackState {
+    const maxIndex = Math.max(this.state.frames.length - 1, 0);
+    const nextCursor = Math.min(maxIndex, this.state.cursor + Math.max(1, count));
+
+    this.state = {
+      ...this.state,
+      cursor: nextCursor,
+      mode: 'single-step'
+    };
+
+    return this.state;
+  }
+
+  seek(cursor: number): PlaybackState {
+    const boundedCursor = Math.max(0, Math.min(this.state.frames.length - 1, Math.trunc(cursor)));
+    this.state = {
+      ...this.state,
+      cursor: Number.isFinite(boundedCursor) ? boundedCursor : 0
+    };
+
+    return this.state;
+  }
+
+  currentFrame(): Frame {
+    return this.state.frames[this.state.cursor] ?? createInitialFrame();
+  }
+}
+
+function createInitialFrame(): Frame {
   return {
-    tick: lastStep?.payload.tick ?? 0,
-    pc: lastStep?.payload.pc ?? null,
-    halted: Boolean(haltedEvent),
-    haltReason: haltedEvent?.payload.reason ?? null,
-    stackDepth: stack.length,
-    topOfStack: stack.at(-1) ?? null,
-    registers
+    tick: 0,
+    pc: null,
+    halted: false,
+    haltReason: null,
+    stackDepth: 0,
+    topOfStack: null,
+    registers: {
+      a: 0,
+      l: 0,
+      q: 0,
+      z: 0
+    },
+    lastOpcode: null,
+    lastImmediate: null
   };
 }
 

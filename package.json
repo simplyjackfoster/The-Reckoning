@@ -8,8 +8,8 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "test": "npm run build && npm run test --workspaces",
+    "build": "npm run build -w @dead-reckoning/event-stream && npm run build -w @dead-reckoning/vm-core && npm run build -w @dead-reckoning/runtime && npm run build -w @dead-reckoning/visualizer",
+    "test": "npm run build && npm run test -w @dead-reckoning/event-stream && npm run test -w @dead-reckoning/vm-core && npm run test -w @dead-reckoning/runtime && npm run test -w @dead-reckoning/visualizer",
     "typecheck": "npm run typecheck --workspaces",
     "lint": "markdownlint-cli2 *.md docs/**/*.md Luminary099/*.md --config .markdownlint.yml",
     "lint:fix": "markdownlint-cli2 *.md docs/**/*.md Luminary099/*.md --config .markdownlint.yml --fix",

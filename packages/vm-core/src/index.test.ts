@@ -96,18 +96,59 @@ describe('AgcInterpretiveVm', () => {
     expect(events.some((event) => event.type === 'vm.snapshot')).toBe(true);
   });
 
-  it('executes vector add primitive via VADD3', () => {
+  it('executes vector operations end to end via memory bridge', () => {
     const sink = new InMemoryEventSink();
     const vm = new AgcInterpretiveVm(
       {
         words: [
-          encodeInstruction(Opcode.PushImmediate, 1),
+          encodeInstruction(Opcode.LoadVec3, 10),
+          encodeInstruction(Opcode.LoadVec3, 20),
+          encodeInstruction(Opcode.Vadd3),
           encodeInstruction(Opcode.PushImmediate, 2),
+          encodeInstruction(Opcode.Vxsc),
+          encodeInstruction(Opcode.StoreVec3, 30),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink,
+      {
+        initialMemory: [
+          ...Array.from({ length: 10 }, () => 0),
+          1,
+          2,
+          3,
+          ...Array.from({ length: 7 }, () => 0),
+          4,
+          5,
+          6
+        ]
+      }
+    );
+
+    vm.reset();
+    while (!vm.snapshot().halted) {
+      vm.step();
+    }
+
+    expect(vm.snapshot().memory.slice(30, 33).map(onesComplementToSigned)).toEqual([10, 14, 18]);
+  });
+
+  it('executes dot/sign/abs/div primitives for scalar flow', () => {
+    const sink = new InMemoryEventSink();
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
           encodeInstruction(Opcode.PushImmediate, 3),
           encodeInstruction(Opcode.PushImmediate, 4),
           encodeInstruction(Opcode.PushImmediate, 5),
-          encodeInstruction(Opcode.PushImmediate, 6),
-          encodeInstruction(Opcode.Vadd3),
+          encodeInstruction(Opcode.PushImmediate, 1),
+          encodeInstruction(Opcode.PushImmediate, 1),
+          encodeInstruction(Opcode.PushImmediate, 1),
+          encodeInstruction(Opcode.Dot3),
+          encodeInstruction(Opcode.PushImmediate, -2),
+          encodeInstruction(Opcode.Div),
+          encodeInstruction(Opcode.Sign),
+          encodeInstruction(Opcode.Abs),
           encodeInstruction(Opcode.Halt)
         ]
       },
@@ -119,13 +160,19 @@ describe('AgcInterpretiveVm', () => {
       vm.step();
     }
 
-    expect(vm.snapshot().stack.map(onesComplementToSigned)).toEqual([5, 7, 9]);
+    expect(onesComplementToSigned(vm.snapshot().stack.at(-1) ?? 0)).toBe(1);
   });
 
   it('decodes sign-extended immediates for literal pushes', () => {
     const sink = new InMemoryEventSink();
     const vm = new AgcInterpretiveVm(
-      { words: [encodeInstruction(Opcode.PushImmediate, -3), encodeInstruction(Opcode.PopToA), encodeInstruction(Opcode.Halt)] },
+      {
+        words: [
+          encodeInstruction(Opcode.PushImmediate, -3),
+          encodeInstruction(Opcode.PopToA),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
       sink
     );
 
