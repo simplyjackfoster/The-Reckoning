@@ -2,6 +2,14 @@ import type { EventSink, VmEvent, VmEventType } from '@dead-reckoning/event-stre
 
 export type Word15 = number;
 
+const WORD15_MODULUS = 0o100000;
+
+export function normalizeWord15(value: number): Word15 {
+  const integer = Math.trunc(value);
+  const wrapped = ((integer % WORD15_MODULUS) + WORD15_MODULUS) % WORD15_MODULUS;
+  return wrapped;
+}
+
 export interface VmRegisters {
   readonly a: Word15;
   readonly l: Word15;
@@ -26,15 +34,19 @@ export interface StepResult {
   readonly emitted: readonly VmEvent[];
 }
 
-export class AgcInterpretiveVm {
-  private seq = 0;
-  private state: VmState = {
+export function createInitialVmState(): VmState {
+  return {
     tick: 0,
     pc: 0,
     stack: [],
     registers: { a: 0, l: 0, q: 0, z: 0 },
     halted: false
   };
+}
+
+export class AgcInterpretiveVm {
+  private seq = 0;
+  private state: VmState = createInitialVmState();
 
   constructor(
     private readonly program: VmProgram,
@@ -46,13 +58,7 @@ export class AgcInterpretiveVm {
   }
 
   reset(): VmState {
-    this.state = {
-      tick: 0,
-      pc: 0,
-      stack: [],
-      registers: { a: 0, l: 0, q: 0, z: 0 },
-      halted: false
-    };
+    this.state = createInitialVmState();
     this.emit('vm.reset', { pc: 0 });
     return this.state;
   }
@@ -62,11 +68,11 @@ export class AgcInterpretiveVm {
       return { state: this.state, emitted: [] };
     }
 
-    const currentWord = this.program.words[this.state.pc];
-    this.emit('vm.step.start', { pc: this.state.pc, word: currentWord ?? null });
+    const currentWord = this.readCurrentWord();
+    this.emit('vm.step.start', { pc: this.state.pc, word: currentWord });
 
-    const nextPc = currentWord === undefined ? this.state.pc : this.state.pc + 1;
-    const halted = currentWord === undefined;
+    const halted = currentWord === null;
+    const nextPc = halted ? this.state.pc : this.state.pc + 1;
 
     this.state = {
       ...this.state,
@@ -86,6 +92,15 @@ export class AgcInterpretiveVm {
     });
 
     return { state: this.state, emitted: [] };
+  }
+
+  private readCurrentWord(): Word15 | null {
+    const rawWord = this.program.words[this.state.pc];
+    if (rawWord === undefined) {
+      return null;
+    }
+
+    return normalizeWord15(rawWord);
   }
 
   private emit(type: VmEventType, payload: Record<string, unknown>): void {
