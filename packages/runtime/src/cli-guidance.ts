@@ -19,15 +19,22 @@ function main() {
   const limit = Number.parseInt(limitArg ?? '250', 10);
 
   const lines = JSON.parse(readFileSync(resolve(inputArg), 'utf8')) as GuidanceLine[];
-  const result = runGuidanceSlice(lines.slice(0, Number.isFinite(limit) ? limit : 250), 20_000);
+  const slicedLines = lines.slice(0, Number.isFinite(limit) ? limit : 250);
+  const result = runGuidanceSlice(slicedLines, 20_000);
 
-  console.log(`Guidance lines compiled: ${lines.length}`);
+  console.log(`Guidance lines compiled: ${slicedLines.length}`);
   console.log(`Program words: ${result.compiled.program.words.length}`);
   console.log(`Final tick: ${result.finalState.tick}`);
   console.log(`Final pc: ${result.finalState.pc}`);
   console.log(`Final halted: ${result.finalState.halted} (${result.finalState.haltReason ?? 'none'})`);
-  console.log(`Stack (signed): [${result.finalState.stack.map((word) => onesComplementToSigned(word)).join(', ')}]`);
+  console.log(`Stack (signed): [${result.finalState.stack.map((word: number) => onesComplementToSigned(word)).join(', ')}]`);
   console.log(`Events emitted: ${result.events.length}`);
+
+  const topSymbols = Object.entries(result.compiled.symbolTable)
+    .slice(0, 8)
+    .map(([name, address]) => `${name}@${address}=${onesComplementToSigned(result.finalState.memory[address] ?? 0)}`);
+
+  console.log(`Symbol preview: ${topSymbols.join(' | ')}`);
 }
 
 main();

@@ -73,7 +73,8 @@ export function runGuidanceSlice(
   options: VmOptions = {}
 ): GuidanceRuntimeResult {
   const compiled = compileGuidanceLines(lines);
-  const result = runProgramWithReplay(compiled.program, maxSteps, options);
+  const mergedOptions = mergeVmOptions(options, { initialMemory: compiled.initialMemory });
+  const result = runProgramWithReplay(compiled.program, maxSteps, mergedOptions);
 
   return {
     ...result,
@@ -100,6 +101,23 @@ export function verifyDeterministicReplay(
     mismatch,
     firstRun,
     secondRun
+  };
+}
+
+function mergeVmOptions(base: VmOptions, override: VmOptions): VmOptions {
+  const baseMemory = base.initialMemory ?? [];
+  const overrideMemory = override.initialMemory ?? [];
+  const memoryLength = Math.max(baseMemory.length, overrideMemory.length);
+
+  const mergedMemory = Array.from({ length: memoryLength }, (_, index) => {
+    return overrideMemory[index] ?? baseMemory[index] ?? 0;
+  });
+
+  return {
+    ...base,
+    ...override,
+    memorySize: Math.max(base.memorySize ?? 0, override.memorySize ?? 0, mergedMemory.length || 256),
+    initialMemory: mergedMemory
   };
 }
 

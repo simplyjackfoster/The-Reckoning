@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { encodeInstruction, Opcode } from '@dead-reckoning/vm-core';
+import { encodeInstruction, Opcode, onesComplementToSigned } from '@dead-reckoning/vm-core';
 import {
   readReplay,
   runGuidanceSlice,
@@ -45,12 +45,52 @@ describe('runProgramWithReplay', () => {
 });
 
 describe('runGuidanceSlice', () => {
-  it('compiles guidance lines and runs them end to end', () => {
+  it('compiles guidance lines and runs them end to end with vector/scalar memory effects', () => {
     const lines: GuidanceLine[] = [
       {
         sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
         lineNumber: 1,
         opcodeIndex: 0,
+        opcode: 'VLOAD',
+        operand: 'RVEL',
+        comment: null,
+        isInterpretive: true,
+        raw: ' VLOAD RVEL'
+      },
+      {
+        sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
+        lineNumber: 2,
+        opcodeIndex: 1,
+        opcode: 'VLOAD',
+        operand: 'RPOS',
+        comment: null,
+        isInterpretive: true,
+        raw: ' VLOAD RPOS'
+      },
+      {
+        sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
+        lineNumber: 3,
+        opcodeIndex: 2,
+        opcode: 'VAD',
+        operand: null,
+        comment: null,
+        isInterpretive: true,
+        raw: ' VAD'
+      },
+      {
+        sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
+        lineNumber: 4,
+        opcodeIndex: 3,
+        opcode: 'STOVL',
+        operand: 'RWORK',
+        comment: null,
+        isInterpretive: true,
+        raw: ' STOVL RWORK'
+      },
+      {
+        sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
+        lineNumber: 5,
+        opcodeIndex: 4,
         opcode: 'DLOAD',
         operand: 'TAU',
         comment: null,
@@ -59,33 +99,23 @@ describe('runGuidanceSlice', () => {
       },
       {
         sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
-        lineNumber: 2,
-        opcodeIndex: 1,
-        opcode: 'DLOAD',
-        operand: 'KAPPA',
-        comment: null,
-        isInterpretive: true,
-        raw: ' DLOAD KAPPA'
-      },
-      {
-        sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
-        lineNumber: 3,
-        opcodeIndex: 2,
-        opcode: 'DAD',
+        lineNumber: 6,
+        opcodeIndex: 5,
+        opcode: 'ABS',
         operand: null,
         comment: null,
         isInterpretive: true,
-        raw: ' DAD'
+        raw: ' ABS'
       },
       {
         sourceFile: 'Luminary099/THE_LUNAR_LANDING.agc',
-        lineNumber: 4,
-        opcodeIndex: 3,
-        opcode: 'STORE',
-        operand: 'GAMMA',
+        lineNumber: 7,
+        opcodeIndex: 6,
+        opcode: 'STODL',
+        operand: 'TAU_ABS',
         comment: null,
         isInterpretive: true,
-        raw: ' STORE GAMMA'
+        raw: ' STODL TAU_ABS'
       }
     ];
 
@@ -94,6 +124,13 @@ describe('runGuidanceSlice', () => {
     expect(result.compiled.program.words.length).toBeGreaterThan(0);
     expect(result.finalState.halted).toBe(true);
     expect(result.events.some((event) => event.type === 'vm.memory.write')).toBe(true);
+
+    const workAddress = result.compiled.symbolTable.RWORK;
+    expect(workAddress).toBeGreaterThan(0);
+    expect(result.finalState.memory.slice(workAddress, workAddress + 3).some((value: number) => onesComplementToSigned(value) !== 0)).toBe(true);
+
+    const tauAbsAddress = result.compiled.symbolTable.TAU_ABS;
+    expect(onesComplementToSigned(result.finalState.memory[tauAbsAddress] ?? 0)).toBeGreaterThanOrEqual(0);
   });
 });
 
