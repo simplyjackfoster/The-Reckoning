@@ -6,6 +6,7 @@ export interface Frame {
   readonly halted: boolean;
   readonly haltReason: string | null;
   readonly stackDepth: number;
+  readonly callDepth: number;
   readonly topOfStack: number | null;
   readonly registers: {
     readonly a: number;
@@ -15,6 +16,10 @@ export interface Frame {
   };
   readonly lastOpcode: number | null;
   readonly lastImmediate: number | null;
+}
+
+export interface TimelineRenderOptions {
+  readonly maxFrames?: number;
 }
 
 export type PlaybackMode = 'realtime' | 'fixed-rate' | 'single-step' | 'paused';
@@ -36,6 +41,7 @@ export function buildFrameTimeline(events: readonly VmEvent[]): readonly Frame[]
   let haltedReason: string | null = null;
   let lastOpcode: number | null = null;
   let lastImmediate: number | null = null;
+  let callDepth = 0;
 
   for (const event of events) {
     if (event.type === 'vm.stack.push') {
@@ -45,6 +51,16 @@ export function buildFrameTimeline(events: readonly VmEvent[]): readonly Frame[]
 
     if (event.type === 'vm.stack.pop') {
       stack.pop();
+      continue;
+    }
+
+    if (event.type === 'vm.call') {
+      callDepth = event.payload.depthAfter;
+      continue;
+    }
+
+    if (event.type === 'vm.return') {
+      callDepth = event.payload.depthAfter;
       continue;
     }
 
@@ -74,6 +90,7 @@ export function buildFrameTimeline(events: readonly VmEvent[]): readonly Frame[]
         halted: event.payload.halted,
         haltReason: haltedReason,
         stackDepth: stack.length,
+        callDepth,
         topOfStack: stack.at(-1) ?? null,
         registers: {
           a: registers.a,
@@ -88,6 +105,21 @@ export function buildFrameTimeline(events: readonly VmEvent[]): readonly Frame[]
   }
 
   return frames;
+}
+
+export function renderAsciiTimeline(frames: readonly Frame[], options: TimelineRenderOptions = {}): string {
+  if (frames.length === 0) {
+    return 'No frames.';
+  }
+
+  const maxFrames = Math.max(1, options.maxFrames ?? 20);
+  const sliced = frames.slice(-maxFrames);
+  const lines = sliced.map((frame, index) => {
+    const marker = frame.halted ? '■' : '•';
+    return `${String(index + 1).padStart(2, '0')} ${marker} tick=${frame.tick} pc=${frame.pc ?? 'n/a'} stack=${frame.stackDepth} call=${frame.callDepth} top=${frame.topOfStack ?? '∅'} op=${frame.lastOpcode ?? '∅'} imm=${frame.lastImmediate ?? '∅'}`;
+  });
+
+  return lines.join('\n');
 }
 
 export class PlaybackController {
@@ -149,6 +181,7 @@ function createInitialFrame(): Frame {
     halted: false,
     haltReason: null,
     stackDepth: 0,
+    callDepth: 0,
     topOfStack: null,
     registers: {
       a: 0,

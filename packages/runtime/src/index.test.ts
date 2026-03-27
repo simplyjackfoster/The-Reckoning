@@ -5,6 +5,7 @@ import {
   runGuidanceSlice,
   runProgram,
   runProgramWithReplay,
+  summarizeRuntime,
   verifyDeterministicReplay,
   type GuidanceLine
 } from './index.js';
@@ -28,6 +29,7 @@ describe('runProgram', () => {
     expect(result.events.some((event) => event.type === 'vm.register.write')).toBe(true);
     expect(result.events.some((event) => event.type === 'vm.snapshot')).toBe(true);
     expect(result.events.at(-1)?.type).toBe('vm.step.end');
+    expect(result.stats.opcodeCount).toBeGreaterThan(0);
   });
 });
 
@@ -132,6 +134,53 @@ describe('runGuidanceSlice', () => {
     const tauAbsAddress = result.compiled.symbolTable.TAU_ABS;
     expect(onesComplementToSigned(result.finalState.memory[tauAbsAddress] ?? 0)).toBeGreaterThanOrEqual(0);
   });
+
+  it('supports label + control-flow guidance opcodes end-to-end', () => {
+    const lines: GuidanceLine[] = [
+      mkLine(0, 'DLOAD', 'FLAG'),
+      mkLine(1, 'BON', 'TAKE_BRANCH'),
+      mkLine(2, 'DLOAD', 'FALLBACK'),
+      mkLine(3, 'GOTO', 'END'),
+      mkLine(4, 'LABEL', 'TAKE_BRANCH'),
+      mkLine(5, 'CALL', 'SUBR'),
+      mkLine(6, 'LABEL', 'END'),
+      mkLine(7, 'STODL', 'OUT'),
+      mkLine(8, 'LABEL', 'SUBR'),
+      mkLine(9, 'DLOAD', 'RETVAL'),
+      mkLine(10, 'RTB', null)
+    ];
+
+    const result = runGuidanceSlice(lines, 500);
+    expect(result.finalState.halted).toBe(true);
+    expect(result.stats.callCount).toBe(1);
+    expect(result.stats.returnCount).toBe(1);
+    expect(result.stats.jumpCount).toBeGreaterThanOrEqual(1);
+
+    const outAddr = result.compiled.symbolTable.OUT;
+    expect(onesComplementToSigned(result.finalState.memory[outAddr] ?? 0)).not.toBe(0);
+  });
+});
+
+describe('summarizeRuntime', () => {
+  it('captures branch/call/memory metrics from events', () => {
+    const result = runProgram({
+      words: [
+        encodeInstruction(Opcode.PushImmediate, 1),
+        encodeInstruction(Opcode.Call, 4),
+        encodeInstruction(Opcode.JumpIfNonZero, 2),
+        encodeInstruction(Opcode.Halt),
+        encodeInstruction(Opcode.Halt),
+        encodeInstruction(Opcode.PushImmediate, 1),
+        encodeInstruction(Opcode.Return)
+      ]
+    });
+
+    const stats = summarizeRuntime(result.events);
+    expect(stats.callCount).toBe(1);
+    expect(stats.returnCount).toBe(1);
+    expect(stats.jumpCount).toBeGreaterThanOrEqual(1);
+    expect(stats.maxStackDepth).toBeGreaterThanOrEqual(1);
+  });
 });
 
 describe('verifyDeterministicReplay', () => {
@@ -150,3 +199,16 @@ describe('verifyDeterministicReplay', () => {
     expect(verification.firstRun.events).toEqual(verification.secondRun.events);
   });
 });
+
+function mkLine(opcodeIndex: number, opcode: string, operand: string | null): GuidanceLine {
+  return {
+    sourceFile: 'Luminary099/CONTROL_TEST.agc',
+    lineNumber: opcodeIndex + 1,
+    opcodeIndex,
+    opcode,
+    operand,
+    comment: null,
+    isInterpretive: true,
+    raw: `${opcode}${operand ? ` ${operand}` : ''}`
+  };
+}

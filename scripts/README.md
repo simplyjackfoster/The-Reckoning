@@ -15,11 +15,20 @@ bun scripts/extract-guidance.ts --output artifacts/powered-descent-trace-seed.js
 
 ## `run-guidance-slice.ts`
 
-Loads extracted guidance lines, compiles them into the local interpretive VM instruction set, and executes the generated program end to end with replay/event output summaries.
+Builds workspaces, runs the guidance slice through runtime + visualizer integration, and prints execution metrics plus a compact ASCII timeline.
 
 ### Usage
 
 ```bash
 bun scripts/run-guidance-slice.ts
 bun scripts/run-guidance-slice.ts --input artifacts/powered-descent-trace-seed.json --limit 500
+bun scripts/run-guidance-slice.ts --timeline 20 --replay-out artifacts/latest-replay.json
 ```
+
+### Flags
+
+- `--input`, `-i`: Guidance-line JSON input file.
+- `--limit`, `-n`: Number of lines to compile from input.
+- `--max-steps`, `-m`: VM execution step budget.
+- `--timeline`, `-t`: Number of recent frames rendered in the ASCII timeline.
+- `--replay-out`, `-r`: Optional path to write serialized replay log JSON.
