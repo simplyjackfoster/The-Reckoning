@@ -53,10 +53,11 @@ describe('compileGuidanceLines', () => {
 
     const compiled = compileGuidanceLines(lines);
 
-    expect(compiled.compiledInstructions.length).toBe(3);
+    expect(compiled.compiledInstructions.length).toBe(4);
     expect(compiled.program.words.some((word: number) => decodeOpcode(word) === Opcode.LoadVec3)).toBe(true);
     expect(compiled.program.words.some((word: number) => decodeOpcode(word) === Opcode.Vxsc)).toBe(true);
     expect(compiled.program.words.some((word: number) => decodeOpcode(word) === Opcode.StoreVec3)).toBe(true);
+    expect(compiled.program.words.some((word: number) => decodeOpcode(word) === Opcode.PopVac)).toBe(true);
     expect(decodeOpcode(compiled.program.words.at(-1) ?? -1)).toBe(Opcode.Halt);
     expect(compiled.symbolTable.RVEL).toBeGreaterThan(0);
     expect(compiled.symbolTable.OUTV).toBeGreaterThan(0);

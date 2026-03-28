@@ -13,6 +13,7 @@ const WORD15_MODULUS = 0o100000;
 const SIGN_BIT = 0o40000;
 const NEGATIVE_ZERO = WORD15_MASK;
 const DEFAULT_MEMORY_SIZE = 256;
+const HALF_REVOLUTION_SCALE = 0x3fff;
 
 export enum Opcode {
   Nop = 0,
@@ -41,7 +42,19 @@ export enum Opcode {
   StoreVec3 = 23,
   Call = 24,
   Return = 25,
-  JumpIfNonZero = 26
+  JumpIfNonZero = 26,
+  Vxv = 27,
+  Unit = 28,
+  Sine = 29,
+  Cosine = 30,
+  Arcsin = 31,
+  Arctan2 = 32,
+  Mxv = 33,
+  Vxm = 34,
+  Transpose = 35,
+  LoadMat3 = 36,
+  StoreMat3 = 37,
+  PopVac = 38
 }
 
 export interface ZeroNormalizationOptions {
@@ -121,6 +134,13 @@ export function onesComplementMultiply(lhs: Word15, rhs: Word15): Word15 {
   return signedToOnesComplement(signedProduct);
 }
 
+export function onesComplementMultiplyFractional(a: Word15, b: Word15): Word15 {
+  const signedA = onesComplementToSigned(a);
+  const signedB = onesComplementToSigned(b);
+  const product = Math.trunc((signedA * signedB) / 16384);
+  return signedToOnesComplement(product);
+}
+
 export function onesComplementDivide(lhs: Word15, rhs: Word15): Word15 | null {
   const denominator = onesComplementToSigned(rhs);
   if (denominator === 0) {
@@ -194,6 +214,7 @@ export function createInitialVmState(options: VmOptions = {}): VmState {
 export class AgcInterpretiveVm {
   private seq = 0;
   private state: VmState;
+  private matrixBuffer: Word15[] = Array.from({ length: 9 }, () => 0);
 
   constructor(
     private readonly program: VmProgram,
@@ -209,6 +230,7 @@ export class AgcInterpretiveVm {
 
   reset(): VmState {
     this.state = createInitialVmState(this.options);
+    this.matrixBuffer = Array.from({ length: 9 }, () => 0);
     this.emit('vm.reset', { pc: 0 });
     return this.state;
   }
@@ -392,7 +414,52 @@ export class AgcInterpretiveVm {
         this.callRelative(instruction.immediate);
         return;
       case Opcode.Return:
+      case Opcode.PopVac:
         this.returnFromCall();
+        return;
+      case Opcode.Vxv:
+        this.vxv();
+        this.advancePc();
+        return;
+      case Opcode.Unit:
+        this.unit();
+        this.advancePc();
+        return;
+      case Opcode.Sine:
+        this.unaryTrig((x) => Math.sin(x));
+        this.advancePc();
+        return;
+      case Opcode.Cosine:
+        this.unaryTrig((x) => Math.cos(x));
+        this.advancePc();
+        return;
+      case Opcode.Arcsin:
+        this.arcsin();
+        this.advancePc();
+        return;
+      case Opcode.Arctan2:
+        this.arctan2();
+        this.advancePc();
+        return;
+      case Opcode.Mxv:
+        this.mxv(false);
+        this.advancePc();
+        return;
+      case Opcode.Vxm:
+        this.mxv(true);
+        this.advancePc();
+        return;
+      case Opcode.Transpose:
+        this.transpose();
+        this.advancePc();
+        return;
+      case Opcode.LoadMat3:
+        this.loadMat3(instruction.immediate);
+        this.advancePc();
+        return;
+      case Opcode.StoreMat3:
+        this.storeMat3(instruction.immediate);
+        this.advancePc();
         return;
       default:
         this.halt(`invalid-opcode:${instruction.opcode}`);
@@ -530,6 +597,73 @@ export class AgcInterpretiveVm {
     this.pushWord(onesComplementMultiply(vector[2], scalar));
   }
 
+  private vxv(): void {
+    const rhs = this.popVector3();
+    const lhs = this.popVector3();
+    if (!rhs || !lhs) {
+      this.halt('stack-underflow:vxv');
+      return;
+    }
+
+    const x = onesComplementSubtract(
+      onesComplementMultiplyFractional(lhs[1], rhs[2]),
+      onesComplementMultiplyFractional(lhs[2], rhs[1])
+    );
+    const y = onesComplementSubtract(
+      onesComplementMultiplyFractional(lhs[2], rhs[0]),
+      onesComplementMultiplyFractional(lhs[0], rhs[2])
+    );
+    const z = onesComplementSubtract(
+      onesComplementMultiplyFractional(lhs[0], rhs[1]),
+      onesComplementMultiplyFractional(lhs[1], rhs[0])
+    );
+
+    this.pushWord(x);
+    this.pushWord(y);
+    this.pushWord(z);
+
+    this.emit('vm.vector.op', {
+      opcode: 'vxv',
+      inputA: lhs,
+      inputB: rhs,
+      output: [x, y, z]
+    });
+  }
+
+  private unit(): void {
+    const vector = this.popVector3();
+    if (!vector) {
+      this.halt('stack-underflow:unit');
+      return;
+    }
+
+    const sx = onesComplementToSigned(vector[0]);
+    const sy = onesComplementToSigned(vector[1]);
+    const sz = onesComplementToSigned(vector[2]);
+    const mag = Math.sqrt(sx * sx + sy * sy + sz * sz);
+
+    if (mag < 1e-6) {
+      this.halt('division-by-zero:unit');
+      return;
+    }
+
+    const out: [Word15, Word15, Word15] = [
+      signedToOnesComplement(Math.round(sx / mag)),
+      signedToOnesComplement(Math.round(sy / mag)),
+      signedToOnesComplement(Math.round(sz / mag))
+    ];
+
+    this.pushWord(out[0]);
+    this.pushWord(out[1]);
+    this.pushWord(out[2]);
+
+    this.emit('vm.vector.op', {
+      opcode: 'unit',
+      inputA: vector,
+      output: out
+    });
+  }
+
   private dot3(): void {
     const rhs = this.popVector3();
     const lhs = this.popVector3();
@@ -584,6 +718,98 @@ export class AgcInterpretiveVm {
     }
 
     this.pushWord(quotient);
+  }
+
+  private unaryTrig(fn: (value: number) => number): void {
+    const value = this.popWord();
+    if (value === null) {
+      this.halt('stack-underflow:trig');
+      return;
+    }
+
+    const radians = (onesComplementToSigned(value) / HALF_REVOLUTION_SCALE) * Math.PI;
+    const output = fn(radians);
+    this.pushWord(signedToOnesComplement(Math.round(output * HALF_REVOLUTION_SCALE)));
+  }
+
+  private arcsin(): void {
+    const value = this.popWord();
+    if (value === null) {
+      this.halt('stack-underflow:arcsin');
+      return;
+    }
+
+    const normalized = onesComplementToSigned(value) / HALF_REVOLUTION_SCALE;
+    if (Math.abs(normalized) > 1) {
+      this.halt('domain-error:arcsin');
+      return;
+    }
+
+    const angle = Math.asin(normalized);
+    this.pushWord(signedToOnesComplement(Math.round((angle / Math.PI) * HALF_REVOLUTION_SCALE)));
+  }
+
+  private arctan2(): void {
+    const x = this.popWord();
+    const y = this.popWord();
+    if (x === null || y === null) {
+      this.halt('stack-underflow:arctan2');
+      return;
+    }
+
+    const xs = onesComplementToSigned(x) / HALF_REVOLUTION_SCALE;
+    const ys = onesComplementToSigned(y) / HALF_REVOLUTION_SCALE;
+    const angle = Math.atan2(ys, xs);
+    this.pushWord(signedToOnesComplement(Math.round((angle / Math.PI) * HALF_REVOLUTION_SCALE)));
+  }
+
+  private mxv(transpose: boolean): void {
+    const v = this.popVector3();
+    if (!v) {
+      this.halt(`stack-underflow:${transpose ? 'vxm' : 'mxv'}`);
+      return;
+    }
+
+    const matrix = transpose ? transposeMatrix(this.matrixBuffer) : this.matrixBuffer;
+    const x = onesComplementAdd(
+      onesComplementAdd(
+        onesComplementMultiplyFractional(matrix[0] ?? 0, v[0]),
+        onesComplementMultiplyFractional(matrix[3] ?? 0, v[1])
+      ),
+      onesComplementMultiplyFractional(matrix[6] ?? 0, v[2])
+    );
+    const y = onesComplementAdd(
+      onesComplementAdd(
+        onesComplementMultiplyFractional(matrix[1] ?? 0, v[0]),
+        onesComplementMultiplyFractional(matrix[4] ?? 0, v[1])
+      ),
+      onesComplementMultiplyFractional(matrix[7] ?? 0, v[2])
+    );
+    const z = onesComplementAdd(
+      onesComplementAdd(
+        onesComplementMultiplyFractional(matrix[2] ?? 0, v[0]),
+        onesComplementMultiplyFractional(matrix[5] ?? 0, v[1])
+      ),
+      onesComplementMultiplyFractional(matrix[8] ?? 0, v[2])
+    );
+
+    this.pushWord(x);
+    this.pushWord(y);
+    this.pushWord(z);
+  }
+
+  private transpose(): void {
+    this.matrixBuffer = transposeMatrix(this.matrixBuffer);
+  }
+
+  private loadMat3(baseAddress: number): void {
+    this.matrixBuffer = Array.from({ length: 9 }, (_, idx) => this.readMemory(baseAddress + idx));
+  }
+
+  private storeMat3(baseAddress: number): void {
+    for (let idx = 0; idx < 9; idx += 1) {
+      this.writeMemory(baseAddress + idx, this.matrixBuffer[idx] ?? 0);
+    }
   }
 
   private loadVec3(baseAddress: number): void {
@@ -781,4 +1007,8 @@ function signExtend9(value: number): number {
 function normalizeAddress(value: number, memoryLength: number): number {
   const address = Math.trunc(Math.abs(value));
   return address % memoryLength;
+}
+
+function transposeMatrix(input: readonly Word15[]): Word15[] {
+  return [input[0] ?? 0, input[3] ?? 0, input[6] ?? 0, input[1] ?? 0, input[4] ?? 0, input[7] ?? 0, input[2] ?? 0, input[5] ?? 0, input[8] ?? 0];
 }

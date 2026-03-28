@@ -6,6 +6,7 @@ export type VmEventType =
   | 'vm.register.write'
   | 'vm.stack.push'
   | 'vm.stack.pop'
+  | 'vm.vector.op'
   | 'vm.memory.write'
   | 'vm.jump'
   | 'vm.call'
@@ -14,6 +15,20 @@ export type VmEventType =
   | 'vm.halt';
 
 export type VmRegisterName = 'a' | 'l' | 'q' | 'z';
+
+
+export type VmVectorOpPayload =
+  | {
+      readonly opcode: 'vxv';
+      readonly inputA: readonly [number, number, number];
+      readonly inputB: readonly [number, number, number];
+      readonly output: readonly [number, number, number];
+    }
+  | {
+      readonly opcode: 'unit';
+      readonly inputA: readonly [number, number, number];
+      readonly output: readonly [number, number, number];
+    };
 
 export interface VmSnapshotPayload {
   readonly pc: number;
@@ -60,6 +75,7 @@ export interface VmEventPayloadMap {
     readonly value: number;
     readonly depthAfter: number;
   };
+  readonly 'vm.vector.op': VmVectorOpPayload;
   readonly 'vm.memory.write': {
     readonly address: number;
     readonly previous: number;

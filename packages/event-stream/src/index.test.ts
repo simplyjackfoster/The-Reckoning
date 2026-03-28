@@ -25,7 +25,8 @@ describe('replay serialization', () => {
         }
       },
       { seq: 4, tick: 1, type: 'vm.return', payload: { fromPc: 12, toPc: 1, depthAfter: 0 } },
-      { seq: 5, tick: 1, type: 'vm.halt', payload: { reason: 'halt-instruction' } }
+      { seq: 5, tick: 1, type: 'vm.vector.op', payload: { opcode: 'unit', inputA: [1, 1, 0], output: [1, 1, 0] } },
+      { seq: 6, tick: 1, type: 'vm.halt', payload: { reason: 'halt-instruction' } }
     ];
 
     const serialized = serializeReplayLog(events);

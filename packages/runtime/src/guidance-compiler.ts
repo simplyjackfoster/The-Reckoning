@@ -178,6 +178,43 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
         emitted.push(encodeInstruction(Opcode.Dot3));
         stackDepth -= 5;
         break;
+      case 'VXV':
+        emitted.push(...ensureDepth(6, 'VXV'));
+        emitted.push(encodeInstruction(Opcode.Vxv));
+        stackDepth -= 3;
+        break;
+      case 'UNIT':
+        emitted.push(...ensureDepth(3, 'UNIT'));
+        emitted.push(encodeInstruction(Opcode.Unit));
+        break;
+      case 'SINE':
+        emitted.push(...ensureDepth(1, 'SINE'));
+        emitted.push(encodeInstruction(Opcode.Sine));
+        break;
+      case 'COSINE':
+        emitted.push(...ensureDepth(1, 'COSINE'));
+        emitted.push(encodeInstruction(Opcode.Cosine));
+        break;
+      case 'ARCSIN':
+        emitted.push(...ensureDepth(1, 'ARCSIN'));
+        emitted.push(encodeInstruction(Opcode.Arcsin));
+        break;
+      case 'ARCTAN2':
+        emitted.push(...ensureDepth(2, 'ARCTAN2'));
+        emitted.push(encodeInstruction(Opcode.Arctan2));
+        stackDepth -= 1;
+        break;
+      case 'MXV':
+        emitted.push(...ensureDepth(3, 'MXV'));
+        emitted.push(encodeInstruction(Opcode.Mxv));
+        break;
+      case 'VXM':
+        emitted.push(...ensureDepth(3, 'VXM'));
+        emitted.push(encodeInstruction(Opcode.Vxm));
+        break;
+      case 'TRANSPOSE':
+        emitted.push(encodeInstruction(Opcode.Transpose));
+        break;
       case 'STORE':
       case 'STODL': {
         emitted.push(...ensureDepth(1, loweredOpcode));
@@ -193,6 +230,7 @@ export function compileGuidanceLines(lines: readonly GuidanceLine[]): CompiledGu
       }
       case 'EXIT':
       case 'EXITS':
+        emitted.push(encodeInstruction(Opcode.PopVac));
         break;
       default:
         emitted.push(encodeInstruction(Opcode.Nop));
