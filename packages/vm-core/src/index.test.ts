@@ -215,6 +215,133 @@ describe('AgcInterpretiveVm', () => {
     expect(onesComplementToSigned(vm.snapshot().stack.at(-1) ?? 0)).toBe(-256);
   });
 
+
+
+  it('implements VXV with fractional multiplication and emits vector-op events', () => {
+    const sink = new InMemoryEventSink();
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(Opcode.LoadVec3, 10),
+          encodeInstruction(Opcode.LoadVec3, 20),
+          encodeInstruction(Opcode.Vxv),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink,
+      {
+        initialMemory: [
+          ...Array.from({ length: 10 }, () => 0),
+          0x3fff,
+          0,
+          0,
+          ...Array.from({ length: 7 }, () => 0),
+          0,
+          0x3fff,
+          0
+        ]
+      }
+    );
+
+    vm.reset();
+    while (!vm.snapshot().halted) vm.step();
+
+    const stack = vm.snapshot().stack;
+    const z = stack.at(-1) ?? 0;
+    expect(onesComplementToSigned(stack.at(-3) ?? 1)).toBe(0);
+    expect(onesComplementToSigned(stack.at(-2) ?? 1)).toBe(0);
+    expect(z).toBeGreaterThanOrEqual(0x1000);
+    expect(z).toBeLessThanOrEqual(0x3fff);
+    expect(z).not.toBe(0x7fff);
+    expect(sink.all().some((event) => event.type === 'vm.vector.op')).toBe(true);
+  });
+
+  it('normalizes vectors with UNIT and keeps magnitude near 1.0', () => {
+    const sink = new InMemoryEventSink();
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(Opcode.LoadVec3, 30),
+          encodeInstruction(Opcode.Unit),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink,
+      {
+        initialMemory: [...Array.from({ length: 30 }, () => 0), 0x2000, 0x2000, 0]
+      }
+    );
+
+    vm.reset();
+    while (!vm.snapshot().halted) vm.step();
+
+    const x = onesComplementToSigned(vm.snapshot().stack.at(-3) ?? 0);
+    const y = onesComplementToSigned(vm.snapshot().stack.at(-2) ?? 0);
+    const z = onesComplementToSigned(vm.snapshot().stack.at(-1) ?? 0);
+    const magnitude = Math.sqrt(x * x + y * y + z * z);
+    expect(magnitude).toBeGreaterThan(1);
+    expect(magnitude).toBeLessThan(2);
+  });
+
+  it('implements trig and matrix opcode basics', () => {
+    const sink = new InMemoryEventSink();
+    const ninety = Math.round(0x3fff / 2);
+    const vm = new AgcInterpretiveVm(
+      {
+        words: [
+          encodeInstruction(Opcode.Load, 40),
+          encodeInstruction(Opcode.Sine),
+          encodeInstruction(Opcode.Load, 40),
+          encodeInstruction(Opcode.Cosine),
+          encodeInstruction(Opcode.Load, 41),
+          encodeInstruction(Opcode.Load, 41),
+          encodeInstruction(Opcode.Arctan2),
+          encodeInstruction(Opcode.LoadMat3, 100),
+          encodeInstruction(Opcode.LoadVec3, 50),
+          encodeInstruction(Opcode.Mxv),
+          encodeInstruction(Opcode.Halt)
+        ]
+      },
+      sink,
+      {
+        initialMemory: [
+          ...Array.from({ length: 40 }, () => 0),
+          0x0ccc,
+          0x3fff,
+          ...Array.from({ length: 8 }, () => 0),
+          0x3fff,
+          0,
+          0,
+          ...Array.from({ length: 47 }, () => 0),
+          0,
+          0x3fff,
+          0,
+          signedToOnesComplement(-0x3fff),
+          0,
+          0,
+          0,
+          0,
+          0x3fff
+        ]
+      }
+    );
+
+    vm.reset();
+    while (!vm.snapshot().halted) vm.step();
+
+    const st = vm.snapshot().stack;
+    expect(st[0]).toBeGreaterThanOrEqual(0x259a);
+    expect(st[0]).toBeLessThanOrEqual(0x259e);
+    expect(st[1]).toBeGreaterThanOrEqual(0x33c4);
+    expect(st[1]).toBeLessThanOrEqual(0x33c8);
+    expect(st[2]).toBeGreaterThanOrEqual(0x0ffe);
+    expect(st[2]).toBeLessThanOrEqual(0x1000);
+    expect(onesComplementToSigned(st.at(-3) ?? 1)).toBe(0);
+    expect(Math.abs(onesComplementToSigned(st.at(-2) ?? 0) - 0x3fff)).toBeLessThanOrEqual(2);
+    expect(onesComplementToSigned(st.at(-1) ?? 1)).toBe(0);
+    expect(ninety).toBeGreaterThan(0);
+  });
+
   it('supports call/return and non-zero branching for subroutine flow', () => {
     const sink = new InMemoryEventSink();
     const vm = new AgcInterpretiveVm(
